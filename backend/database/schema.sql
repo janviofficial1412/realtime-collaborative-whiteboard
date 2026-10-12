@@ -1,0 +1,7 @@
+CREATE TABLE boards (
+    id SERIAL PRIMARY KEY,
+    board_name VARCHAR(100) NOT NULL DEFAULT 'Untitled Board',
+    drawing_data JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
