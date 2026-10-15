@@ -1,27 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whiteboard application</title>
-    <link rel="stylesheet" href = "style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
+        <div class="board-controls">
+            <select id="board-select">
+                <option value="">Select a board</option>
+            </select>
+
+            <input type="text" id="board-name-input" placeholder="Enter board name">
+
+            <button id="create-board-btn" type="button">
+                Create Board
+            </button>
+
+            <button id="rename-board-btn" type="button">
+                Rename Board
+            </button>
+
+            <button id="delete-board-btn" type="button">
+                Delete Board
+            </button>
+
+            <p id="board-status" role="status"></p>
+         </div>
         <section class="tools-board">
             <div class="row">
                 <label class="title">Shapes</label>
-                <ul class = "options">
-                    <li class="option tool" id = "rectangle">
-                        <img src = "icons/rectangle.svg" alt = "">
+                <ul class="options">
+                    <li class="option tool" id="rectangle">
+                        <img src="icons/rectangle.svg" alt="">
                         <span>Rectangle</span>
                     </li>
-                    <li class="option tool" id = "circle">
-                        <img src = "icons/circle.svg" alt = "">
+                    <li class="option tool" id="circle">
+                        <img src="icons/circle.svg" alt="">
                         <span>Circle</span>
                     </li>
-                    <li class="option tool" id = "triangle">
-                        <img src = "icons/triangle.svg" alt = "">
+                    <li class="option tool" id="triangle">
+                        <img src="icons/triangle.svg" alt="">
                         <span>Triangle</span>
                     </li>
                     <li class="option">
@@ -32,17 +55,17 @@
             </div>
             <div class="row">
                 <label class="title">Options</label>
-                <ul class = "options">
-                    <li class="option tool active" id = "brush">
-                        <img src = "icons/brush.svg" alt = "">
+                <ul class="options">
+                    <li class="option tool active" id="brush">
+                        <img src="icons/brush.svg" alt="">
                         <span>Brush</span>
                     </li>
-                    <li class = "option tool" id = "eraser">
-                        <img src = "icons/eraser.svg" alt = "">
+                    <li class="option tool" id="eraser">
+                        <img src="icons/eraser.svg" alt="">
                         <span>Eraser</span>
                     </li>
                     <li class="option">
-                        <input type="range" id="size-slider" min = "1" max="30" value = "5">
+                        <input type="range" id="size-slider" min="1" max="30" value="5">
                     </li>
                 </ul>
             </div>
@@ -54,7 +77,7 @@
                     <li class="option"></li>
                     <li class="option"></li>
                     <li class="option">
-                        <input type="color" id="color-picker" value = "#4A98F7">
+                        <input type="color" id="color-picker" value="#4A98F7">
                     </li>
                 </ul>
             </div>
@@ -69,6 +92,7 @@
         </section>
     </div>
 
-  <script src = "script.js"></script>  
+    <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

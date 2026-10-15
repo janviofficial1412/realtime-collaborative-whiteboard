@@ -6,9 +6,8 @@ const app = express();
 
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, "..")));
+app.use(express.static(path.join(__dirname, "..","frontend")));
 
-// CREATE a new board
 app.post("/api/boards", async (req, res) => {
     try {
         const { name } = req.body;
@@ -28,7 +27,6 @@ app.post("/api/boards", async (req, res) => {
 
 });
 
-// READ all boards
 app.get("/api/boards", async (req, res) => {
     try {
         const result = await pool.query(
@@ -44,7 +42,6 @@ app.get("/api/boards", async (req, res) => {
 
 });
 
-// READ one board by ID
 app.get("/api/boards/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -71,7 +68,6 @@ app.get("/api/boards/:id", async (req, res) => {
 
 });
 
-// UPDATE a board's name
 app.put("/api/boards/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -107,7 +103,6 @@ app.put("/api/boards/:id", async (req, res) => {
 
 });
 
-// DELETE a board
 app.delete("/api/boards/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
