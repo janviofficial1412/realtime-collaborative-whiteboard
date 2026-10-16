@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whiteboard application</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/boardmanagement.css">
+    <link rel="stylesheet" href="css/whiteboard.css">
 </head>
 
 <body>
     <div class="container">
+    <section id="board-management">
+        <h1> My Boards </h1>
         <div class="board-controls">
             <select id="board-select">
                 <option value="">Select a board</option>
@@ -28,9 +32,12 @@
             <button id="delete-board-btn" type="button">
                 Delete Board
             </button>
+            <button id="open-board-btn" type="button">Open Board</button>
 
             <p id="board-status" role="status"></p>
-         </div>
+        </div>
+    </section>
+    <section id="whiteboard-screen" hidden>
         <section class="tools-board">
             <div class="row">
                 <label class="title">Shapes</label>
@@ -84,12 +91,16 @@
             <div class="row buttons">
                 <button class="clear-canvas">Clear Canvas</button>
                 <button class="save-img">Save As Image</button>
+                <button id="back-to-boards-btn" type="button">
+                    Back to My Boards
+                </button>
             </div>
         </section>
 
         <section class="drawing-board">
             <canvas></canvas>
         </section>
+    </section>
     </div>
 
     <script type="module" src="js/main.js"></script>

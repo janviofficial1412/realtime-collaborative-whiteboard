@@ -5,6 +5,7 @@ createBoard,
 renameBoard,
 deleteBoard
 } from "../api/boardApi.js";
+import { resizeCanvas } from "../canvas/canvas.js";
 
 const boardSelect = document.querySelector("#board-select");
 const boardNameInput = document.querySelector("#board-name-input");
@@ -14,11 +15,24 @@ const renameBoardBtn = document.querySelector("#rename-board-btn");
 const deleteBoardBtn = document.querySelector("#delete-board-btn");
 
 const boardStatus = document.querySelector("#board-status");
+const boardManagement = document.querySelector("#board-management");
+const whiteboardScreen = document.querySelector("#whiteboard-screen");
+
+const openBoardBtn = document.querySelector("#open-board-btn");
+const backToBoardsBtn = document.querySelector("#back-to-boards-btn");
 
 let selectedBoardId = null;
 
-function showBoardStatus(message) {
-boardStatus.textContent = message;
+function showBoardStatus(message, isError = false) {
+    const boardStatus = document.querySelector("#board-status");
+
+    if (!boardStatus) {
+        console.error("Board status element not found.");
+        return;
+    }
+
+    boardStatus.textContent = message;
+    boardStatus.style.color = isError ? "red" : "green";
 }
 
 
@@ -177,6 +191,51 @@ try {
 }
 
 
+});
+
+
+function showBoardManagement() {
+    boardManagement.hidden = false;
+    whiteboardScreen.hidden = true;
+}
+
+function showWhiteboard() {
+    boardManagement.hidden = true;
+    whiteboardScreen.hidden = false;
+}
+
+openBoardBtn.addEventListener("click", async () => {
+    const boardId = boardSelect.value;
+
+    if (!boardId) {
+        showStatus("Please select a board first.", true);
+        return;
+    }
+
+    try {
+        await getBoard(boardId);
+        showWhiteboard();
+
+        boardManagement.hidden = true;
+        whiteboardScreen.hidden = false;
+
+        requestAnimationFrame(() => {
+        const resized = resizeCanvas();
+
+        if (resized) {
+            showBoardStatus("Board opened successfully.");
+        } else {
+            showBoardStatus("Canvas dimensions could not be initialized.", true);
+        }
+    });
+        } catch (error) {
+            console.error("Error opening board:", error);
+            showBoardStatus("Unable to open this board.", true);
+        }
+});
+
+backToBoardsBtn.addEventListener("click", () => {
+    showBoardManagement();
 });
 
 
