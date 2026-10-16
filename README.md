@@ -26,18 +26,24 @@ This project is being developed progressively into a **real-time collaborative w
 * **JavaScript** — Application logic and interactions
 * **HTML5 Canvas API** — Drawing and rendering
 
-## 📂 Project Structure
-
-```text
+📂 Project Structure
 realtime-collaborative-whiteboard/
 │
-├── icons/
-│   └── [UI icon assets]
-├── index.html
-├── style.css
-├── script.js
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   └── js/
+│
+├── backend/
+│   ├── server.js
+│   ├── db.js
+│   ├── package.json
+│   ├── package-lock.json
+│   └── database/
+│       └── schema.sql
+│
+├── .gitignore
 └── README.md
-```
 
 ## ▶️ How to Run
 
