@@ -56,10 +56,10 @@ Then open `index.html` in a modern desktop web browser.
 This project will be developed in multiple phases:
 
 * [x] Phase 1 — Canvas-based drawing application
-* [ ] Phase 2 — Node.js + Express backend
-* [ ] Phase 3 — PostgreSQL integration
+* [x] Phase 2 — Node.js + Express backend
+* [x] Phase 3 — PostgreSQL integration
 * [ ] Phase 4 — Real-time collaboration with Socket.IO
 * [ ] Phase 5 — Authentication, rooms and permissions
 * [ ] Phase 6 — Responsive design, deployment and production improvements
 
-> **Current Status:** Phase 1 completed. The application currently works as a single-user, desktop-focused browser-based whiteboard.
+> **Current Status:** Phase 1 completed. Backend APIs and PostgreSQL integration implemented; development and testing are ongoing.
