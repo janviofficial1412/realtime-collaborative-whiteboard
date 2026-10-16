@@ -7,6 +7,7 @@ let prevMouseX;
 let prevMouseY;
 let snapshot;
 let isDrawing = false;
+let currentOperation = null;
 
 export let brushWidth = 5;
 export let selectedColor = "#000";
@@ -67,9 +68,27 @@ function drawTriangle(e) {
     fillcolor.checked ? ctx.fill() : ctx.stroke();
 }
 
+function storeCoordinates(e) {
+    currentOperation.points.push({
+        x: e.offsetX,
+        y: e.offsetY
+    });
+}
+
 function startDraw(e) {
     isDrawing = true;
 
+        currentOperation = {
+        type: selectedTool,
+        color: selectedColor,
+        brushSize: brushWidth,
+        startX: e.offsetX,
+        startY: e.offsetY,
+        points: [],
+        filled: fillcolor.checked
+    };
+
+    storeCoordinates(e);
     prevMouseX = e.offsetX;
     prevMouseY = e.offsetY;
 
@@ -89,6 +108,9 @@ function startDraw(e) {
 function drawing(e) {
     if (!isDrawing) return;
 
+    if (selectedTool === "brush" || selectedTool === "eraser") {
+        storeCoordinates(e);
+    }
     ctx.putImageData(snapshot, 0, 0);
 
     if (selectedTool === "brush" || selectedTool === "eraser") {
@@ -110,8 +132,14 @@ function drawing(e) {
 canvas.addEventListener("mousedown", startDraw);
 canvas.addEventListener("mousemove", drawing);
 
-canvas.addEventListener("mouseup", () => {
+canvas.addEventListener("mouseup", (e) => {
+     if (!currentOperation) return;
+
+    currentOperation.endX = e.offsetX;
+    currentOperation.endY = e.offsetY;
     isDrawing = false;
+
+    console.log(currentOperation);
 });
 
 canvas.addEventListener("mouseleave", () => {
