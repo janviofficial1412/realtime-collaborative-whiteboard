@@ -85,3 +85,24 @@ if (!response.ok) {
 return data;
 
 }
+
+export async function saveDrawingData(id, name, drawingHistory) {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name,
+            drawing_data: drawingHistory
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to save drawing.");
+    }
+
+    return data;
+}
+
+

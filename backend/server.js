@@ -71,7 +71,7 @@ app.get("/api/boards/:id", async (req, res) => {
 app.put("/api/boards/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const { name } = req.body;
+        const { name,drawing_data } = req.body;
 
 
         if (!Number.isInteger(id) || id < 1) {
@@ -84,10 +84,12 @@ app.put("/api/boards/:id", async (req, res) => {
 
         const result = await pool.query(
             `UPDATE boards
-         SET board_name = $1, updated_at = CURRENT_TIMESTAMP
-         WHERE id = $2
+         SET board_name = $1,
+         drawing_data =  $2,
+         updated_at = CURRENT_TIMESTAMP
+         WHERE id = $3
          RETURNING *`,
-            [name.trim(), id]
+            [name.trim(),JSON.stringify(drawing_data ?? []), id]
         );
 
         if (result.rows.length === 0) {

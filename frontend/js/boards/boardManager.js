@@ -3,9 +3,11 @@ getBoards,
 getBoard,
 createBoard,
 renameBoard,
-deleteBoard
+deleteBoard,
+saveDrawingData
 } from "../api/boardApi.js";
 import { resizeCanvas } from "../canvas/canvas.js";
+import { drawingHistory, loadDrawingHistory ,setDrawingSaveCallback} from "../canvas/drawing.js";
 
 const boardSelect = document.querySelector("#board-select");
 const boardNameInput = document.querySelector("#board-name-input");
@@ -76,6 +78,30 @@ showBoardStatus("Loading boards...");
 
 
 }
+
+export async function saveCurrentBoard(drawingHistory) {
+    if (!selectedBoardId) {
+        throw new Error("Please open a board first.");
+    }
+
+    const name = boardNameInput.value.trim();
+
+    return await saveDrawingData(
+        selectedBoardId,
+        name,
+        drawingHistory
+    );
+}
+
+setDrawingSaveCallback(async (history) => {
+    try {
+        await saveCurrentBoard(history);
+        showBoardStatus("Drawing saved successfully.");
+    } catch (error) {
+        console.error("Error saving drawing:", error);
+        showBoardStatus(error.message, true);
+    }
+});
 
 
 boardSelect.addEventListener("change", async () => {
@@ -213,8 +239,7 @@ openBoardBtn.addEventListener("click", async () => {
     }
 
     try {
-        await getBoard(boardId);
-        showWhiteboard();
+        const board = await getBoard(boardId);
 
         boardManagement.hidden = true;
         whiteboardScreen.hidden = false;
@@ -227,6 +252,8 @@ openBoardBtn.addEventListener("click", async () => {
         } else {
             showBoardStatus("Canvas dimensions could not be initialized.", true);
         }
+        loadDrawingHistory(board.drawing_data);
+        showWhiteboard();
     });
         } catch (error) {
             console.error("Error opening board:", error);

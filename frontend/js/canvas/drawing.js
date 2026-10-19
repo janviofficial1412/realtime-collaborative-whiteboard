@@ -1,16 +1,14 @@
-// drawing.js
-
 import { canvas, ctx } from "./canvas.js";
-import { setCanvasBackground } from "./canvas.js";
 
 let prevMouseX;
 let prevMouseY;
 let snapshot;
 let isDrawing = false;
 let currentOperation = null;
-let drawingHistory = [];
+export let drawingHistory = [];
 let lastMouseX;
 let lastMouseY;
+let onDrawingComplete = null;
 
 export let brushWidth = 5;
 export let selectedColor = "#000";
@@ -28,6 +26,10 @@ export function setSelectedColor(color) {
 
 export function setSelectedTool(tool) {
     selectedTool = tool;
+}
+
+export function setDrawingSaveCallback(callback) {
+    onDrawingComplete = callback;
 }
 
 function drawRect(e) {
@@ -159,6 +161,9 @@ canvas.addEventListener("mouseup", (e) => {
     currentOperation = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawfromHistory();
+    if (onDrawingComplete) {
+        onDrawingComplete(drawingHistory);
+    }
 });
 
 canvas.addEventListener("mouseleave", () => {
@@ -168,6 +173,9 @@ canvas.addEventListener("mouseleave", () => {
         drawingHistory.push(currentOperation);
         console.log("Drawing history:", drawingHistory);
         currentOperation = null;
+        if (onDrawingComplete) {
+            onDrawingComplete(drawingHistory);
+        }
     }
 
     isDrawing = false;
@@ -285,4 +293,21 @@ function drawfromHistory() {
 
     }
 
+}
+
+export function loadDrawingHistory(history) {
+    drawingHistory = Array.isArray(history) ? history : [];
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawfromHistory();
+}
+
+export function clearDrawingHistory() {
+    drawingHistory = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawfromHistory();
+
+    if (onDrawingComplete) {
+        onDrawingComplete(drawingHistory);
+    }
 }

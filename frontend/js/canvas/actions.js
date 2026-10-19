@@ -1,12 +1,12 @@
 import { canvas, ctx, setCanvasBackground } from "./canvas.js";
+import { clearDrawingHistory } from "./drawing.js";
 
 const clearCanvasBtn = document.querySelector(".clear-canvas");
 const saveImgBtn = document.querySelector(".save-img");
 
 if (clearCanvasBtn) {
     clearCanvasBtn.addEventListener("click", () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        clearDrawingHistory();
         setCanvasBackground();
     });
 }
