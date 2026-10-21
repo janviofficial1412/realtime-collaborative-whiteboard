@@ -2,7 +2,8 @@
   "dependencies": {
     "dotenv": "^18.0.7",
     "express": "^5.2.1",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

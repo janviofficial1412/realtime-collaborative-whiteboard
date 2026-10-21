@@ -7,7 +7,8 @@ deleteBoard,
 saveDrawingData
 } from "../api/boardApi.js";
 import { resizeCanvas } from "../canvas/canvas.js";
-import { drawingHistory, loadDrawingHistory ,setDrawingSaveCallback} from "../canvas/drawing.js";
+import { loadDrawingHistory ,setDrawingSaveCallback, setCurrentBoardIdCallback} from "../canvas/drawing.js";
+import socket from "./socket.js";
 
 const boardSelect = document.querySelector("#board-select");
 const boardNameInput = document.querySelector("#board-name-input");
@@ -24,6 +25,7 @@ const openBoardBtn = document.querySelector("#open-board-btn");
 const backToBoardsBtn = document.querySelector("#back-to-boards-btn");
 
 let selectedBoardId = null;
+setCurrentBoardIdCallback(() => selectedBoardId);
 
 function showBoardStatus(message, isError = false) {
     const boardStatus = document.querySelector("#board-status");
@@ -158,7 +160,7 @@ try {
 
 });
 
-// Rename a board
+ 
 renameBoardBtn.addEventListener("click", async () => {
 if (!selectedBoardId) {
 showBoardStatus("Please select a board first.");
@@ -240,6 +242,7 @@ openBoardBtn.addEventListener("click", async () => {
 
     try {
         const board = await getBoard(boardId);
+        socket.emit("join-board", board.id);
 
         boardManagement.hidden = true;
         whiteboardScreen.hidden = false;

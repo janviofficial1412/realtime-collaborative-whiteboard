@@ -1,4 +1,5 @@
 import { canvas, ctx } from "./canvas.js";
+import socket from "../socket.js";
 
 let prevMouseX;
 let prevMouseY;
@@ -9,6 +10,11 @@ export let drawingHistory = [];
 let lastMouseX;
 let lastMouseY;
 let onDrawingComplete = null;
+let getCurrentBoardId = null;
+
+export function setCurrentBoardIdCallback(callback) {
+    getCurrentBoardId = callback;
+}
 
 export let brushWidth = 5;
 export let selectedColor = "#000";
@@ -158,6 +164,18 @@ canvas.addEventListener("mouseup", (e) => {
     }
 
     drawingHistory.push(currentOperation);
+
+    const boardId = getCurrentBoardId
+    ? getCurrentBoardId()
+    : null;
+
+    if (boardId !== null) {
+        socket.emit("drawing-operation", {
+            ...currentOperation,
+            boardId: boardId
+        });
+    }
+
     currentOperation = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawfromHistory();
@@ -181,14 +199,8 @@ canvas.addEventListener("mouseleave", () => {
     isDrawing = false;
 });
 
-
-function drawfromHistory() {
-    if (drawingHistory.length === 0) {
-        console.log("No drawing operations to redraw.");
-        return;
-    }
-    for (const operation of drawingHistory) {
-        const points = operation.points;
+function drawOperation(operation){
+    const points = operation.points;
 
         if (operation.type === "brush") {
             ctx.beginPath();
@@ -289,11 +301,19 @@ function drawfromHistory() {
 
 
         }
+}
+
+
+function drawfromHistory() {
+    if (drawingHistory.length === 0) {
+        return;
+    }
+    for (const operation of drawingHistory) {
+            drawOperation(operation);
+        }
 
 
     }
-
-}
 
 export function loadDrawingHistory(history) {
     drawingHistory = Array.isArray(history) ? history : [];

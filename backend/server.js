@@ -1,8 +1,13 @@
+const http = require("http");
+const { Server } = require("socket.io");
+
 const pool = require("./db");
 const express = require("express");
 const path = require("path");
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.json());
 
@@ -133,7 +138,35 @@ app.delete("/api/boards/:id", async (req, res) => {
 
 });
 
-app.listen(3000, () => {
+io.on("connection", (socket) => {
+    socket.on("test-message", (message) => {
+        console.log("Message from frontend:", message);
+    });
+    console.log("A user connected:", socket.id);
+
+    socket.on("join-board", (boardId) => {
+        const roomName = `board-${boardId}`;
+
+        socket.join(roomName);
+
+        console.log(`${socket.id} joined ${roomName}`);
+    });
+
+    socket.on("drawing-operation", (operation) => {
+        const roomName = `board-${operation.boardId}`;
+
+        socket.to(roomName).emit("drawing-operation", operation);
+
+        console.log("Drawing operation broadcast to:", roomName);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected:", socket.id);
+    });
+});
+
+server.listen(3000, () => {
     console.log("App listening at http://localhost:3000");
 });
+
 

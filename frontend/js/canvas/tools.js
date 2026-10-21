@@ -1,5 +1,3 @@
-// tools.js
-
 import {
     setBrushWidth,
     setSelectedColor,
