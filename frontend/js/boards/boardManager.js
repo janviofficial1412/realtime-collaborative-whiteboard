@@ -8,7 +8,7 @@ saveDrawingData
 } from "../api/boardApi.js";
 import { resizeCanvas } from "../canvas/canvas.js";
 import { loadDrawingHistory ,setDrawingSaveCallback, setCurrentBoardIdCallback} from "../canvas/drawing.js";
-import socket from "./socket.js";
+import socket from "../socket.js";
 
 const boardSelect = document.querySelector("#board-select");
 const boardNameInput = document.querySelector("#board-name-input");
@@ -236,7 +236,7 @@ openBoardBtn.addEventListener("click", async () => {
     const boardId = boardSelect.value;
 
     if (!boardId) {
-        showStatus("Please select a board first.", true);
+        showBoardStatus("Please select a board first.", true);
         return;
     }
 

@@ -160,6 +160,21 @@ io.on("connection", (socket) => {
         console.log("Drawing operation broadcast to:", roomName);
     });
 
+    socket.on("clear-board", ({ boardId }) => {
+        const roomName = `board-${boardId}`;
+
+        console.log("Clear request received for board:", boardId);
+        console.log("Broadcasting clear event to room:", roomName);
+
+        socket.to(roomName).emit("clear-board");
+    });
+
+    socket.on("drawing-preview", (operation) => {
+        const roomName = `board-${operation.boardId}`;
+
+        socket.to(roomName).emit("drawing-preview", operation);
+    });
+
     socket.on("disconnect", () => {
         console.log("A user disconnected:", socket.id);
     });

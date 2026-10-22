@@ -7,6 +7,7 @@ let snapshot;
 let isDrawing = false;
 let currentOperation = null;
 export let drawingHistory = [];
+let remotePreview = null;
 let lastMouseX;
 let lastMouseY;
 let onDrawingComplete = null;
@@ -14,6 +15,10 @@ let getCurrentBoardId = null;
 
 export function setCurrentBoardIdCallback(callback) {
     getCurrentBoardId = callback;
+}
+
+export function getActiveBoardId() {
+    return getCurrentBoardId ? getCurrentBoardId() : null;
 }
 
 export let brushWidth = 5;
@@ -146,6 +151,19 @@ function drawing(e) {
         drawCircle(e);
     } else {
         drawTriangle(e);
+    }
+
+    const boardId = getCurrentBoardId
+    ? getCurrentBoardId()
+    : null;
+
+    if (boardId !== null) {
+        socket.emit("drawing-preview", {
+            ...currentOperation,
+            endX: e.offsetX,
+            endY: e.offsetY,
+            boardId: boardId
+        });
     }
 }
 
@@ -331,3 +349,28 @@ export function clearDrawingHistory() {
         onDrawingComplete(drawingHistory);
     }
 }
+
+socket.on("drawing-preview", (operation) => {
+    remotePreview = operation;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawfromHistory();
+
+    drawOperation(remotePreview);
+});
+
+socket.on("drawing-operation", (operation) => {
+    drawingHistory.push(operation);
+
+    remotePreview = null;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawfromHistory();
+});
+
+socket.on("clear-board", () => {
+clearDrawingHistory();
+setCanvasBackground();
+});

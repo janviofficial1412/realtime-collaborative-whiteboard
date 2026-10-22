@@ -2,7 +2,6 @@ const socket = io()
 
 socket.on("connect", () => {
     console.log("connected to Socket.IO: ",socket.id);
-    socket.emit("join-board", 1);
 })
 
 socket.on("disconnect", () => {
