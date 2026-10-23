@@ -12,95 +12,96 @@
 
 <body>
     <div class="container">
-    <section id="board-management">
-        <h1> My Boards </h1>
-        <div class="board-controls">
-            <select id="board-select">
-                <option value="">Select a board</option>
-            </select>
+        <section id="board-management">
+            <h1> My Boards </h1>
+            <div class="board-controls">
+                <select id="board-select">
+                    <option value="">Select a board</option>
+                </select>
 
-            <input type="text" id="board-name-input" placeholder="Enter board name">
+                <input type="text" id="board-name-input" placeholder="Enter board name">
 
-            <button id="create-board-btn" type="button">
-                Create Board
-            </button>
-
-            <button id="rename-board-btn" type="button">
-                Rename Board
-            </button>
-
-            <button id="delete-board-btn" type="button">
-                Delete Board
-            </button>
-            <button id="open-board-btn" type="button">Open Board</button>
-
-            <p id="board-status" role="status"></p>
-        </div>
-    </section>
-    <section id="whiteboard-screen" hidden>
-        <section class="tools-board">
-            <div class="row">
-                <label class="title">Shapes</label>
-                <ul class="options">
-                    <li class="option tool" id="rectangle">
-                        <img src="icons/rectangle.svg" alt="">
-                        <span>Rectangle</span>
-                    </li>
-                    <li class="option tool" id="circle">
-                        <img src="icons/circle.svg" alt="">
-                        <span>Circle</span>
-                    </li>
-                    <li class="option tool" id="triangle">
-                        <img src="icons/triangle.svg" alt="">
-                        <span>Triangle</span>
-                    </li>
-                    <li class="option">
-                        <input type="checkbox" id="fill-color">
-                        <label for="fill-color">Fill Color</label>
-                    </li>
-                </ul>
-            </div>
-            <div class="row">
-                <label class="title">Options</label>
-                <ul class="options">
-                    <li class="option tool active" id="brush">
-                        <img src="icons/brush.svg" alt="">
-                        <span>Brush</span>
-                    </li>
-                    <li class="option tool" id="eraser">
-                        <img src="icons/eraser.svg" alt="">
-                        <span>Eraser</span>
-                    </li>
-                    <li class="option">
-                        <input type="range" id="size-slider" min="1" max="30" value="5">
-                    </li>
-                </ul>
-            </div>
-            <div class="row colors">
-                <label class="title">Colors</label>
-                <ul class="options">
-                    <li class="option selected"></li>
-                    <li class="option"></li>
-                    <li class="option"></li>
-                    <li class="option"></li>
-                    <li class="option">
-                        <input type="color" id="color-picker" value="#4A98F7">
-                    </li>
-                </ul>
-            </div>
-            <div class="row buttons">
-                <button class="clear-canvas">Clear Canvas</button>
-                <button class="save-img">Save As Image</button>
-                <button id="back-to-boards-btn" type="button">
-                    Back to My Boards
+                <button id="create-board-btn" type="button">
+                    Create Board
                 </button>
+
+                <button id="rename-board-btn" type="button">
+                    Rename Board
+                </button>
+
+                <button id="delete-board-btn" type="button">
+                    Delete Board
+                </button>
+                <button id="open-board-btn" type="button">Open Board</button>
+
+                <p id="board-status" role="status"></p>
             </div>
         </section>
+        <section id="whiteboard-screen" hidden>
+            <section class="tools-board">
+                <div class="row">
+                    <label class="title">Shapes</label>
+                    <ul class="options">
+                        <li class="option tool" id="rectangle">
+                            <img src="icons/rectangle.svg" alt="">
+                            <span>Rectangle</span>
+                        </li>
+                        <li class="option tool" id="circle">
+                            <img src="icons/circle.svg" alt="">
+                            <span>Circle</span>
+                        </li>
+                        <li class="option tool" id="triangle">
+                            <img src="icons/triangle.svg" alt="">
+                            <span>Triangle</span>
+                        </li>
+                        <li class="option">
+                            <input type="checkbox" id="fill-color">
+                            <label for="fill-color">Fill Color</label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <label class="title">Options</label>
+                    <ul class="options">
+                        <li class="option tool active" id="brush">
+                            <img src="icons/brush.svg" alt="">
+                            <span>Brush</span>
+                        </li>
+                        <li class="option tool" id="eraser">
+                            <img src="icons/eraser.svg" alt="">
+                            <span>Eraser</span>
+                        </li>
+                        <li class="option">
+                            <input type="range" id="size-slider" min="1" max="30" value="5">
+                        </li>
+                    </ul>
+                </div>
+                <div class="row colors">
+                    <label class="title">Colors</label>
+                    <ul class="options">
+                        <li class="option selected"></li>
+                        <li class="option"></li>
+                        <li class="option"></li>
+                        <li class="option"></li>
+                        <li class="option">
+                            <input type="color" id="color-picker" value="#4A98F7">
+                        </li>
+                    </ul>
+                </div>
+                <div class="row buttons">
+                    <button class="clear-canvas">Clear Canvas</button>
+                    <button class="save-img">Save As Image</button>
+                    <button id="back-to-boards-btn" type="button">
+                        Back to My Boards
+                    </button>
+                </div>
+            </section>
 
-        <section class="drawing-board">
-            <canvas></canvas>
+            <section class="drawing-board">
+                <canvas></canvas>
+                <div class="collaborator-cursors"></div>
+            </section>
         </section>
-    </section>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>

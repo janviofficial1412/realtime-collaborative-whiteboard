@@ -139,13 +139,18 @@ function drawing(e) {
     ctx.putImageData(snapshot, 0, 0);
 
     if (selectedTool === "brush" || selectedTool === "eraser") {
-        ctx.strokeStyle = selectedTool === "eraser"
-            ? "#fff"
-            : selectedColor;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = selectedColor;
+
+        if (selectedTool === "eraser") {
+            ctx.globalCompositeOperation = "destination-out";
+        }
 
         ctx.lineTo(e.offsetX, e.offsetY);
         ctx.stroke();
-    } else if (selectedTool === "rectangle") {
+
+        ctx.globalCompositeOperation = "source-over";
+    }else if (selectedTool === "rectangle") {
         drawRect(e);
     } else if (selectedTool === "circle") {
         drawCircle(e);
@@ -217,6 +222,33 @@ canvas.addEventListener("mouseleave", () => {
     isDrawing = false;
 });
 
+canvas.addEventListener("mousemove", (e) => {
+    const boardId = getCurrentBoardId
+        ? getCurrentBoardId()
+        : null;
+
+    if (boardId === null) return;
+
+    socket.emit("cursor-move", {
+        boardId: boardId,
+        x: e.offsetX,
+        y: e.offsetY
+    });
+});
+
+canvas.addEventListener("mouseleave", () => {
+    const boardId = getCurrentBoardId
+        ? getCurrentBoardId()
+        : null;
+
+    if (boardId === null) return;
+
+    socket.emit("cursor-leave", {
+        boardId: boardId
+    });
+});
+
+
 function drawOperation(operation){
     const points = operation.points;
 
@@ -239,9 +271,11 @@ function drawOperation(operation){
                 ctx.stroke();
             }
         } else if (operation.type === "eraser") {
+            ctx.save();
+
+            ctx.globalCompositeOperation = "destination-out";
             ctx.beginPath();
             ctx.lineWidth = operation.brushSize;
-            ctx.strokeStyle = "#fff";
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
 
@@ -252,7 +286,10 @@ function drawOperation(operation){
             }
 
             ctx.stroke();
-        } else if (operation.type === "rectangle") {
+            ctx.restore();
+        }
+
+else if (operation.type === "rectangle") {
             ctx.beginPath();
             ctx.lineWidth = operation.brushSize;
             ctx.strokeStyle = operation.color;
@@ -373,4 +410,33 @@ socket.on("drawing-operation", (operation) => {
 socket.on("clear-board", () => {
 clearDrawingHistory();
 setCanvasBackground();
+});
+
+const cursorContainer = document.querySelector(".collaborator-cursors");
+
+const collaboratorCursors = new Map();
+
+socket.on("cursor-update", (cursorData) => {
+    let cursor = collaboratorCursors.get(cursorData.userId);
+
+    if (!cursor) {
+        cursor = document.createElement("div");
+        cursor.classList.add("collaborator-cursor");
+
+        cursorContainer.appendChild(cursor);
+        collaboratorCursors.set(cursorData.userId, cursor);
+    }
+
+    cursor.style.left = `${cursorData.x}px`;
+    cursor.style.top = `${cursorData.y}px`;
+
+    cursor.style.display = "block";
+});
+
+socket.on("cursor-hide", ({ userId }) => {
+    const cursor = collaboratorCursors.get(userId);
+
+    if (cursor) {
+        cursor.style.display = "none";
+    }
 });

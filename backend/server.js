@@ -175,8 +175,34 @@ io.on("connection", (socket) => {
         socket.to(roomName).emit("drawing-preview", operation);
     });
 
+    socket.on("cursor-move", (cursorData) => {
+        const roomName = `board-${cursorData.boardId}`;
+
+        socket.to(roomName).emit("cursor-update", {
+            userId: socket.id,
+            x: cursorData.x,
+            y: cursorData.y
+        });
+    });
+
+    socket.on("cursor-leave", ({ boardId }) => {
+        const roomName = `board-${boardId}`;
+
+        socket.to(roomName).emit("cursor-hide", {
+            userId: socket.id
+        });
+    });
+
     socket.on("disconnect", () => {
         console.log("A user disconnected:", socket.id);
+
+        for (const roomName of socket.rooms) {
+            if (roomName.startsWith("board-")) {
+                socket.to(roomName).emit("collaborator-disconnected", {
+                    userId: socket.id
+                });
+            }
+        }
     });
 });
 
