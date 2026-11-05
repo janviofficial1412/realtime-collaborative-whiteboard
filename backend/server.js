@@ -9,9 +9,11 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const boardRoutes = require("./boardRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 app.use(express.json());
 app.use("/api/boards", boardRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(express.static(path.join(__dirname, "..","frontend")));
 
