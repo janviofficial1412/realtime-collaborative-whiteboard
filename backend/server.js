@@ -7,11 +7,15 @@ const path = require("path");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const cookieParser = require("cookie-parser");
 
 const boardRoutes = require("./boardRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 app.use(express.json());
+app.use(express.json());
+app.use(cookieParser());
+
 app.use("/api/boards", boardRoutes);
 app.use("/api/users", userRoutes);
 
