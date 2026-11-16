@@ -12,6 +12,20 @@ let lastMouseX;
 let lastMouseY;
 let onDrawingComplete = null;
 let getCurrentBoardId = null;
+let canEdit = true;
+
+export function setCanEdit(permission) {
+    canEdit = permission === "EDIT";
+
+    const editingControls = document.querySelectorAll(
+        ".tools-board .tool, #fill-color, #size-slider, #color-picker, .clear-canvas"
+    );
+
+    editingControls.forEach((control) => {
+        control.style.pointerEvents = canEdit ? "auto" : "none";
+        control.style.opacity = canEdit ? "1" : "0.5";
+    });
+}
 
 export function setCurrentBoardIdCallback(callback) {
     getCurrentBoardId = callback;
@@ -98,6 +112,8 @@ function storeCoordinates(e) {
 }
 
 function startDraw(e) {
+    if (!canEdit) return;
+
     isDrawing = true;
 
     currentOperation = {

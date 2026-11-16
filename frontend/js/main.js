@@ -4,6 +4,7 @@ import "./canvas/tools.js";
 import "./boards/boardManager.js";
 import "./canvas/actions.js";
 import "./canvas/collabrators.js";
+import "./auth.js";
 
 window.addEventListener("load", () => {
     canvas.width = canvas.offsetWidth;

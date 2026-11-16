@@ -284,11 +284,10 @@ router.get("/share/:token", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.patch("/:id/name", async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const { name, drawing_data } = req.body;
-
+        const { name } = req.body;
 
         if (!Number.isInteger(id) || id < 1) {
             return res.status(400).json({ message: "Invalid board ID" });
@@ -300,17 +299,11 @@ router.put("/:id", async (req, res) => {
 
         const result = await pool.query(
             `UPDATE boards
-         SET board_name = $1,
-         drawing_data =  $2,
-         updated_at = CURRENT_TIMESTAMP
-         WHERE id = $3 AND owner_id = $4
-         RETURNING *`,
-            [
-                name.trim(),
-                JSON.stringify(drawing_data ?? []),
-                id,
-                req.user.id
-            ]
+             SET board_name = $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2 AND owner_id = $3
+             RETURNING *`,
+            [name.trim(), id, req.user.id]
         );
 
         if (result.rows.length === 0) {
@@ -318,12 +311,103 @@ router.put("/:id", async (req, res) => {
         }
 
         res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Error renaming board:", error.message);
+        res.status(500).json({ message: "Failed to rename board" });
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const { name, drawing_data, shareToken } = req.body;
+
+        if (!Number.isInteger(id) || id < 1) {
+            return res.status(400).json({ message: "Invalid board ID" });
+        }
+
+        if (drawing_data === undefined) {
+            return res.status(400).json({
+                message: "Drawing data is required"
+            });
+        }
+
+        // Check whether the user owns the board.
+        const ownerResult = await pool.query(
+            `SELECT id FROM boards
+             WHERE id = $1 AND owner_id = $2`,
+            [id, req.user.id]
+        );
+
+        if (ownerResult.rows.length > 0) {
+
+            // Only the owner can change the board name.
+            if (typeof name !== "string" || !name.trim()) {
+                return res.status(400).json({
+                    message: "A valid board name is required"
+                });
+            }
+
+            const result = await pool.query(
+                `UPDATE boards
+                 SET board_name = $1,
+                     drawing_data = $2,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE id = $3
+                 RETURNING *`,
+                [name.trim(), JSON.stringify(drawing_data), id]
+            );
+
+            return res.json(result.rows[0]);
+        }
+
+        // Non-owners must provide a valid EDIT sharing token.
+        if (!shareToken || !/^[a-f0-9]{64}$/i.test(shareToken)) {
+            return res.status(403).json({
+                message: "You do not have editing permission"
+            });
+        }
+
+        const tokenHash = crypto
+            .createHash("sha256")
+            .update(shareToken)
+            .digest("hex");
+
+        const shareResult = await pool.query(
+            `SELECT id FROM board_share_links
+             WHERE board_id = $1
+             AND token_hash = $2
+             AND permission = 'EDIT'
+             AND revoked_at IS NULL
+             AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)`,
+            [id, tokenHash]
+        );
+
+        if (shareResult.rows.length === 0) {
+            return res.status(403).json({
+                message: "Invalid or insufficient sharing permission"
+            });
+        }
+
+        // EDIT collaborators can update drawing data, not the board name.
+        const result = await pool.query(
+            `UPDATE boards
+             SET drawing_data = $1,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE id = $2
+             RETURNING *`,
+            [JSON.stringify(drawing_data), id]
+        );
+
+        res.json(result.rows[0]);
+
     } catch (error) {
         console.error("Error updating board:", error.message);
-        res.status(500).json({ message: "Failed to update board" });
+        res.status(500).json({
+            message: "Failed to update board"
+        });
     }
-
-
 });
 
 router.delete("/:id", async (req, res) => {
