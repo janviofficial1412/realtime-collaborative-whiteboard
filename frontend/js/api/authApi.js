@@ -21,6 +21,62 @@ export async function loginUser(email, password) {
     }
 
     accessToken = data.accessToken;
+    sessionStorage.setItem("activeUserId", String(data.user.id));
+
+    return data;
+}
+
+export async function refreshAccessToken() {
+    const userId = sessionStorage.getItem("activeUserId");
+
+    if (!userId) {
+        throw new Error("No active account found.");
+    }
+
+    const response = await fetch("/api/users/refresh", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ userId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Session expired.");
+    }
+
+    accessToken = data.accessToken;
+
+    return data;
+}
+
+export async function logoutUser() {
+    const userId = sessionStorage.getItem("activeUserId");
+
+    if (!userId) {
+        throw new Error("No active account found.");
+    }
+
+    const response = await fetch("/api/users/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ userId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Logout failed.");
+    }
+
+    accessToken = null;
+    sessionStorage.removeItem("activeUserId");
 
     return data;
 }

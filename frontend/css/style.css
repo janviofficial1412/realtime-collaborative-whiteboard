@@ -37,3 +37,115 @@ section{
 [hidden] {
     display: none !important;
 }
+
+/* Authentication screen */
+#auth-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    background: #f3f6fb;
+    border-radius: 0;
+}
+
+#auth-screen h2 {
+    color: #1e293b;
+    font-size: 30px;
+    font-weight: 600;
+    text-align: center;
+}
+
+#login-form,
+#signup-form {
+    width: 100%;
+    max-width: 420px;
+    padding: 35px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+#login-form h3,
+#signup-form h3 {
+    margin-bottom: 25px;
+    color: #1e293b;
+    font-size: 23px;
+    text-align: center;
+}
+
+#login-form input,
+#signup-form input {
+    display: block;
+    width: 100%;
+    height: 46px;
+    margin-bottom: 16px;
+    padding: 0 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    outline: none;
+    font-size: 14px;
+}
+
+#login-form input:focus,
+#signup-form input:focus {
+    border-color: #4A98F7;
+    box-shadow: 0 0 0 3px rgba(74, 152, 247, 0.15);
+}
+
+#login-btn,
+#signup-btn {
+    width: 100%;
+    height: 45px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 7px;
+    background: #4A98F7;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+#login-btn:hover,
+#signup-btn:hover {
+    background: #2878d0;
+}
+
+#login-form p,
+#signup-form p {
+    margin-top: 18px;
+    color: #64748b;
+    font-size: 13px;
+    text-align: center;
+}
+
+#show-signup-btn,
+#show-login-btn {
+    border: none;
+    background: none;
+    color: #2878d0;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#auth-status {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+@media (max-width: 480px) {
+    #auth-screen h2 {
+        font-size: 24px;
+    }
+
+    #login-form,
+    #signup-form {
+        padding: 25px 20px;
+    }
+}

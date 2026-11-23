@@ -81,3 +81,31 @@
     margin: 4px 0 0;
     font-size: 13px;
 }
+
+.logout-btn {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    z-index: 1000;
+
+    padding: 10px 22px;
+    border: none;
+    border-radius: 6px;
+
+    background-color: #e74c3c;
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+#board-management[hidden] {
+    display: none;
+}

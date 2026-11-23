@@ -178,7 +178,9 @@ const loginUser = async (req, res) => {
             [user.id, tokenHash, tokenFamilyId, expiresAt]
         );
 
-        res.cookie("refreshToken", refreshToken, {
+        const refreshCookieName = `refreshToken_${user.id}`;
+
+        res.cookie(refreshCookieName, refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
@@ -206,7 +208,16 @@ const loginUser = async (req, res) => {
 };
 
 const refreshAccessToken = async (req, res) => {
-    const refreshToken = req.cookies?.refreshToken;
+    const requestedUserId = Number(req.body?.userId);
+
+    if (!Number.isSafeInteger(requestedUserId) || requestedUserId < 1) {
+        return res.status(400).json({
+            message: "Valid user ID is required."
+        });
+    }
+
+    const refreshCookieName = `refreshToken_${requestedUserId}`;
+    const refreshToken = req.cookies?.[refreshCookieName];
 
     if (!refreshToken) {
         return res.status(401).json({
@@ -273,6 +284,7 @@ const refreshAccessToken = async (req, res) => {
 
         if (
             String(storedToken.user_id) !== String(decoded.userId) ||
+            String(decoded.userId) !== String(requestedUserId) ||
             storedToken.token_family_id !== decoded.tokenFamilyId ||
             new Date(storedToken.expires_at) <= new Date()
         ) {
@@ -328,7 +340,7 @@ const refreshAccessToken = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.cookie("refreshToken", newRefreshToken, {
+        res.cookie(`refreshToken_${requestedUserId}`, newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
@@ -357,11 +369,20 @@ const refreshAccessToken = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        const refreshToken = req.cookies?.refreshToken;
+        const requestedUserId = Number(req.body?.userId);
+
+        if (!Number.isSafeInteger(requestedUserId) || requestedUserId < 1) {
+            return res.status(400).json({
+                message: "Valid user ID is required."
+            });
+        }
+
+        const refreshCookieName = `refreshToken_${requestedUserId}`;
+        const refreshToken = req.cookies?.[refreshCookieName];
 
         // If no refresh token exists, logout is still successful.
         if (!refreshToken) {
-            res.clearCookie("refreshToken", {
+            res.clearCookie(refreshCookieName, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "lax",
@@ -382,14 +403,15 @@ const logoutUser = async (req, res) => {
         // Revoke the refresh token.
         await pool.query(
             `UPDATE refresh_tokens
-             SET revoked_at = CURRENT_TIMESTAMP
-             WHERE token_hash = $1
-             AND revoked_at IS NULL`,
-            [tokenHash]
+     SET revoked_at = CURRENT_TIMESTAMP
+     WHERE token_hash = $1
+     AND user_id = $2
+     AND revoked_at IS NULL`,
+            [tokenHash, requestedUserId]
         );
 
         // Remove the refresh-token cookie from the browser.
-        res.clearCookie("refreshToken", {
+        res.clearCookie(refreshCookieName, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
@@ -410,4 +432,4 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, refreshAccessToken , logoutUser };
+module.exports = { registerUser, loginUser, refreshAccessToken, logoutUser };

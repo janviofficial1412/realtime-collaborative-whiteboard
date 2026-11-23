@@ -134,4 +134,55 @@ export async function saveDrawingData(id, name, drawingHistory, shareToken = nul
     return data;
 }
 
+// Generate a sharing link
+export async function createShareLink(boardId, permission) {
+    const response = await fetch(`${API_URL}/${boardId}/share`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ permission })
+    });
 
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to generate sharing link.");
+    }
+
+    return data;
+}
+
+
+// Get all sharing links for a board
+export async function getShareLinks(boardId) {
+    const response = await fetch(`${API_URL}/${boardId}/shares`, {
+        headers: getAuthHeaders()
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch sharing links.");
+    }
+
+    return data;
+}
+
+
+// Revoke a sharing link
+export async function revokeShareLink(boardId, shareId) {
+    const response = await fetch(
+        `${API_URL}/${boardId}/shares/${shareId}`,
+        {
+            method: "DELETE",
+            headers: getAuthHeaders()
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to revoke sharing link.");
+    }
+
+    return data;
+}

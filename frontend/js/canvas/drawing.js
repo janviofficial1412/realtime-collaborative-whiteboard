@@ -227,9 +227,22 @@ canvas.addEventListener("mouseleave", () => {
     if (currentOperation) {
         currentOperation.endX = lastMouseX;
         currentOperation.endY = lastMouseY;
+
         drawingHistory.push(currentOperation);
-        console.log("Drawing history:", drawingHistory);
+
+        const boardId = getCurrentBoardId
+            ? getCurrentBoardId()
+            : null;
+
+        if (boardId !== null) {
+            socket.emit("drawing-operation", {
+                ...currentOperation,
+                boardId
+            });
+        }
+
         currentOperation = null;
+
         if (onDrawingComplete) {
             onDrawingComplete(drawingHistory);
         }
@@ -426,5 +439,74 @@ socket.on("drawing-operation", (operation) => {
 socket.on("clear-board", () => {
 clearDrawingHistory();
 setCanvasBackground();
+});
+
+const cursorContainer = document.querySelector(".collaborator-cursors");
+
+const collaboratorCursors = new Map();
+
+const cursorColors = [
+    "#e74c3c",
+    "#3498db",
+    "#2ecc71",
+    "#9b59b6",
+    "#f39c12",
+    "#1abc9c",
+    "#e84393"
+];
+
+function getCursorColor(userId) {
+    return cursorColors[Math.abs(Number(userId)) % cursorColors.length];
+}
+
+socket.on("cursor-update", (data) => {
+    if (!cursorContainer) return;
+
+    let cursor = collaboratorCursors.get(data.userId);
+
+    if (!cursor) {
+        cursor = document.createElement("div");
+        cursor.className = "collaborator-cursor";
+
+        const arrow = document.createElement("span");
+        arrow.className = "collaborator-cursor-arrow";
+
+        const username = document.createElement("span");
+        username.className = "collaborator-cursor-name";
+
+        cursor.appendChild(arrow);
+        cursor.appendChild(username);
+
+        cursorContainer.appendChild(cursor);
+
+        collaboratorCursors.set(data.userId, cursor);
+    }
+
+    const color = getCursorColor(data.userId);
+
+    cursor.style.left = `${data.x}px`;
+    cursor.style.top = `${data.y}px`;
+    cursor.style.setProperty("--cursor-color", color);
+
+    cursor.querySelector(".collaborator-cursor-name").textContent =
+        data.username;
+
+});
+
+function removeCollaboratorCursor(userId) {
+    const cursor = collaboratorCursors.get(userId);
+
+    if (cursor) {
+        cursor.remove();
+        collaboratorCursors.delete(userId);
+    }
+}
+
+socket.on("cursor-hide", ({ userId }) => {
+    removeCollaboratorCursor(userId);
+});
+
+socket.on("collaborator-disconnected", ({ userId }) => {
+    removeCollaboratorCursor(userId);
 });
 

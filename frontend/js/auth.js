@@ -1,4 +1,12 @@
-import { loginUser, registerUser } from "./api/authApi.js";
+import {
+    loginUser,
+    registerUser,
+    refreshAccessToken,
+    logoutUser
+} from "./api/authApi.js";
+import socket from "./socket.js";
+
+
 const pathParts = window.location.pathname.split("/");
 const sharedBoardToken =
     pathParts[1] === "share" ? pathParts[2] : null;
@@ -67,6 +75,55 @@ document.getElementById("signup-btn").addEventListener("click", async () => {
     }
 });
 
-// Initially show authentication.
-authScreen.hidden = false;
-boardManagement.hidden = true;
+// Logout
+document.getElementById("logout-btn").addEventListener("click", async () => {
+    const status = document.getElementById("auth-status");
+
+    try {
+        await logoutUser();
+
+        socket.disconnect();
+
+        boardManagement.hidden = true;
+        authScreen.hidden = false;
+
+        status.textContent = "Logged out successfully.";
+
+    } catch (error) {
+        status.textContent = error.message;
+    }
+});
+
+// Restore the user's session when the page loads.
+async function restoreSession() {
+
+    const userId = sessionStorage.getItem("activeUserId");
+
+    if (!userId) {
+        authScreen.hidden = false;
+        boardManagement.hidden = true;
+        return;
+    }
+
+    authScreen.hidden = true;
+    boardManagement.hidden = true;
+
+    try {
+        await refreshAccessToken();
+
+        authScreen.hidden = true;
+        boardManagement.hidden = false;
+
+        window.dispatchEvent(
+            new CustomEvent("user-logged-in", {
+                detail: { shareToken: sharedBoardToken }
+            })
+        );
+
+    } catch (error) {
+        authScreen.hidden = false;
+        boardManagement.hidden = true;
+    }
+}
+
+restoreSession();

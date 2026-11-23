@@ -5,15 +5,11 @@ const socket = io({
 });
 
 socket.on("connect", () => {
-    console.log("Connected to Socket.IO:", socket.id);
+    console.log("SOCKET CONNECTED:", socket.id);
 });
 
 socket.on("connect_error", (error) => {
     console.error("Socket connection failed:", error.message);
-});
-
-socket.on("board-access-granted", (data) => {
-    console.log("Board access granted:", data);
 });
 
 socket.on("board-access-denied", (data) => {
@@ -31,11 +27,13 @@ socket.on("board-access-revoked", (data) => {
 });
 
 socket.on("disconnect", () => {
-    console.log("Disconnected from Socket.IO:", socket.id);
+    console.log("SOCKET DISCONNECTED:", socket.id);
 });
 
 // Connect only after successful login.
 window.addEventListener("user-logged-in", () => {
+    if (socket.connected) return;
+
     socket.auth = {
         token: getAccessToken()
     };

@@ -155,6 +155,13 @@ io.on("connection", (socket) => {
                 shareId = shareResult.rows[0].id;
             }
 
+            const userResult = await pool.query(
+                "SELECT username FROM users WHERE id = $1",
+                [socket.userId]
+            );
+
+            socket.data.username = userResult.rows[0].username;
+
             socket.data.boardAccess = {
                 boardId,
                 permission,
@@ -247,7 +254,12 @@ io.on("connection", (socket) => {
         socket.to(roomName).emit("drawing-preview", operation);
     });
 
-    socket.on("cursor-move", (cursorData) => {
+    socket.on("cursor-move", async (cursorData) => {
+        console.log("Cursor event sender:", {
+            socketId: socket.id,
+            userId: socket.userId,
+            username: socket.data.username
+        });
         const access = socket.data.boardAccess;
 
         // Verify board access.
@@ -259,8 +271,22 @@ io.on("connection", (socket) => {
 
         const roomName = `board-${access.boardId}`;
 
+        console.log("Cursor broadcast:", {
+            senderSocket: socket.id,
+            senderUser: socket.userId,
+            boardAccess: socket.data.boardAccess,
+            roomName,
+            roomMembers: await io.in(roomName).fetchSockets().then(
+                sockets => sockets.map(s => ({
+                    socketId: s.id,
+                    userId: s.userId
+                }))
+            )
+        });
+
         socket.to(roomName).emit("cursor-update", {
             userId: socket.userId,
+            username: socket.data.username,
             x: cursorData.x,
             y: cursorData.y
         });
@@ -290,7 +316,7 @@ io.on("connection", (socket) => {
         for (const roomName of socket.rooms) {
             if (roomName.startsWith("board-")) {
                 socket.to(roomName).emit("collaborator-disconnected", {
-                    userId: socket.id
+                    userId: socket.userId
                 });
             }
         }

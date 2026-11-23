@@ -1,10 +1,14 @@
 import {
     getBoards,
     getBoard,
+    getSharedBoard,
     createBoard,
     renameBoard,
     deleteBoard,
-    saveDrawingData
+    saveDrawingData,
+    createShareLink,
+    getShareLinks,
+    revokeShareLink
 } from "../api/boardApi.js";
 import { resizeCanvas } from "../canvas/canvas.js";
 import {
@@ -28,8 +32,16 @@ const whiteboardScreen = document.querySelector("#whiteboard-screen");
 
 const openBoardBtn = document.querySelector("#open-board-btn");
 const backToBoardsBtn = document.querySelector("#back-to-boards-btn");
+const shareBoardBtn = document.getElementById("share-board-btn");
+const sharingControls = document.getElementById("sharing-controls");
+const generateShareLinkBtn = document.getElementById("generate-share-link-btn");
+const sharePermission = document.getElementById("share-permission");
+const shareLinkInput = document.getElementById("share-link-input");
+const shareStatus = document.getElementById("share-status");
+const existingShareLinks = document.getElementById("existing-share-links");
 
 let selectedBoardId = null;
+let currentShareToken = null;
 setCurrentBoardIdCallback(() => selectedBoardId);
 
 function showBoardStatus(message, isError = false) {
@@ -42,6 +54,70 @@ function showBoardStatus(message, isError = false) {
 
     boardStatus.textContent = message;
     boardStatus.style.color = isError ? "red" : "green";
+}
+
+async function loadShareLinks() {
+    try {
+        if (!selectedBoardId) {
+            throw new Error("No board selected.");
+        }
+
+        existingShareLinks.replaceChildren();
+
+        const data = await getShareLinks(selectedBoardId);
+
+        const shares = Array.isArray(data)
+            ? data
+            : data.shares || [];
+
+        const activeShares = shares.filter(
+            share => !share.revoked_at
+        );
+
+        if (shares.length === 0) {
+            existingShareLinks.textContent = "No sharing links found.";
+            return;
+        }
+
+        activeShares.forEach((share) => {
+            const item = document.createElement("div");
+
+            const permission = document.createElement("span");
+            permission.textContent = `${share.permission} permission`;
+
+
+            item.append(permission);
+
+            if (!share.revoked_at) {
+                const revokeBtn = document.createElement("button");
+                revokeBtn.textContent = "Revoke";
+
+                revokeBtn.addEventListener("click", async () => {
+                    try {
+                        await revokeShareLink(selectedBoardId, share.id);
+
+                        item.remove();
+
+                        if (!existingShareLinks.children.length) {
+                            existingShareLinks.textContent = "No active sharing links.";
+                        }
+
+                        shareStatus.textContent = "Sharing link revoked successfully.";
+
+                    } catch (error) {
+                        shareStatus.textContent = error.message;
+                    }
+                });
+
+                item.appendChild(revokeBtn);
+            }
+
+            existingShareLinks.appendChild(item);
+        });
+
+    } catch (error) {
+        shareStatus.textContent = error.message;
+    }
 }
 
 
@@ -97,7 +173,7 @@ export async function saveCurrentBoard(drawingHistory) {
         selectedBoardId,
         name,
         drawingHistory,
-        shareToken
+        currentShareToken
     );
 }
 
@@ -111,6 +187,13 @@ setDrawingSaveCallback(async (history) => {
     }
 });
 
+shareBoardBtn.addEventListener("click", () => {
+    sharingControls.hidden = !sharingControls.hidden;
+
+    if (!sharingControls.hidden) {
+        loadShareLinks();
+    }
+});
 
 boardSelect.addEventListener("change", async () => {
     const id = boardSelect.value;
@@ -238,7 +321,12 @@ function showWhiteboard() {
     whiteboardScreen.hidden = false;
 }
 
-function requestBoardAccess(boardId) {
+function requestBoardAccess(boardId, shareToken = null) {
+    console.log("requestBoardAccess called:", {
+        boardId,
+        shareToken,
+        time: Date.now()
+    });
     return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
             cleanup();
@@ -266,7 +354,7 @@ function requestBoardAccess(boardId) {
         socket.on("board-access-granted", handleGranted);
         socket.on("board-access-denied", handleDenied);
 
-        socket.emit("join-board", { boardId });
+        socket.emit("join-board", { boardId, shareToken });
     });
 }
 
@@ -279,9 +367,14 @@ openBoardBtn.addEventListener("click", async () => {
     }
 
     try {
+        currentShareToken = null;
+
         const board = await getBoard(boardId);
         const access = await requestBoardAccess(board.id);
         setCanEdit(access.permission);
+
+        shareBoardBtn.hidden = false;
+        sharingControls.hidden = true;
 
         console.log("Board permission:", access.permission);
 
@@ -306,10 +399,91 @@ openBoardBtn.addEventListener("click", async () => {
 });
 
 backToBoardsBtn.addEventListener("click", () => {
+    currentShareToken = null;
+    selectedBoardId = null;
+    boardNameInput.value = "";
+
+    setCanEdit("EDIT");
     showBoardManagement();
+    loadBoards();
+});
+
+generateShareLinkBtn.addEventListener("click", async () => {
+    try {
+        if (!selectedBoardId) {
+            throw new Error("No board selected.");
+        }
+
+        shareStatus.textContent = "Generating link...";
+
+        const permission = sharePermission.value;
+
+        const data = await createShareLink(selectedBoardId, permission);
+
+        shareLinkInput.value = new URL(data.sharePath, window.location.origin).href;
+
+        shareStatus.textContent = `${permission} sharing link generated successfully.`;
+
+    } catch (error) {
+        shareStatus.textContent = error.message;
+    }
+});
+
+const copyShareLinkBtn = document.getElementById("copy-share-link-btn");
+
+copyShareLinkBtn.addEventListener("click", async () => {
+    try {
+        if (!shareLinkInput.value) {
+            throw new Error("Generate a sharing link first.");
+        }
+
+        await navigator.clipboard.writeText(shareLinkInput.value);
+
+        shareStatus.textContent = "Sharing link copied successfully.";
+
+    } catch (error) {
+        shareStatus.textContent = error.message;
+    }
 });
 
 
-window.addEventListener("user-logged-in", () => {
-    loadBoards();
+window.addEventListener("user-logged-in", async (event) => {
+    const shareToken = event.detail?.shareToken;
+
+    if (!shareToken) {
+        loadBoards();
+        return;
+    }
+
+    try {
+        showBoardStatus("Opening shared board...");
+
+        const board = await getSharedBoard(shareToken);
+        const boardId = board.id ?? board.board_id;
+
+        const access = await requestBoardAccess(boardId, shareToken);
+
+        selectedBoardId = boardId;
+        currentShareToken = shareToken;
+
+        boardNameInput.value = board.board_name;
+        setCanEdit(access.permission);
+
+        shareBoardBtn.hidden = true;
+        sharingControls.hidden = true;
+
+        showWhiteboard();
+
+        requestAnimationFrame(() => {
+            resizeCanvas();
+            loadDrawingHistory(board.drawing_data);
+        });
+
+    } catch (error) {
+        console.error("Shared board access failed:", error);
+        currentShareToken = null;
+        showBoardManagement();
+        showBoardStatus(error.message, true);
+        loadBoards();
+    }
 });
