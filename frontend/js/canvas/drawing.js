@@ -98,6 +98,38 @@ function drawTriangle(e) {
     fillcolor.checked ? ctx.fill() : ctx.stroke();
 }
 
+
+function drawArrow(startX, startY, endX, endY) {
+    const headLength = Math.max(10, ctx.lineWidth * 4);
+    const angle = Math.atan2(endY - startY, endX - startX);
+
+    // Draw the main arrow line.
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+
+    // Calculate the two arrowhead endpoints.
+    const angle1 = angle - Math.PI / 6;
+    const angle2 = angle + Math.PI / 6;
+
+    ctx.beginPath();
+
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(
+        endX - headLength * Math.cos(angle1),
+        endY - headLength * Math.sin(angle1)
+    );
+
+    ctx.moveTo(endX, endY);
+    ctx.lineTo(
+        endX - headLength * Math.cos(angle2),
+        endY - headLength * Math.sin(angle2)
+    );
+
+    ctx.stroke();
+}
+
 function storeCoordinates(e) {
     const lastPoint = currentOperation.points.at(-1);
 
@@ -166,17 +198,19 @@ function drawing(e) {
         ctx.stroke();
 
         ctx.globalCompositeOperation = "source-over";
-    }else if (selectedTool === "rectangle") {
+    } else if (selectedTool === "rectangle") {
         drawRect(e);
     } else if (selectedTool === "circle") {
         drawCircle(e);
+    } else if (selectedTool === "arrow") {
+        drawArrow(prevMouseX, prevMouseY, e.offsetX, e.offsetY);
     } else {
         drawTriangle(e);
     }
 
     const boardId = getCurrentBoardId
-    ? getCurrentBoardId()
-    : null;
+        ? getCurrentBoardId()
+        : null;
 
     if (boardId !== null) {
         socket.emit("drawing-preview", {
@@ -205,8 +239,8 @@ canvas.addEventListener("mouseup", (e) => {
     drawingHistory.push(currentOperation);
 
     const boardId = getCurrentBoardId
-    ? getCurrentBoardId()
-    : null;
+        ? getCurrentBoardId()
+        : null;
 
     if (boardId !== null) {
         socket.emit("drawing-operation", {
@@ -278,113 +312,127 @@ canvas.addEventListener("mouseleave", () => {
 });
 
 
-function drawOperation(operation){
+function drawOperation(operation) {
     const points = operation.points;
 
-        if (operation.type === "brush") {
-            ctx.beginPath();
-            ctx.lineWidth = operation.brushSize;
-            ctx.strokeStyle = operation.color;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
+    if (operation.type === "brush") {
+        ctx.beginPath();
+        ctx.lineWidth = operation.brushSize;
+        ctx.strokeStyle = operation.color;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
 
-            if (points.length === 1) {
-                ctx.arc( points[0].x, points[0].y, operation.brushSize / 2, 0, 2 * Math.PI ); 
-                ctx.fill();
-            }else{
-                ctx.moveTo(points[0].x, points[0].y);
-
-                for (let i = 1; i < points.length; i++) {
-                    ctx.lineTo(points[i].x, points[i].y);
-                }
-                ctx.stroke();
-            }
-        } else if (operation.type === "eraser") {
-            ctx.save();
-
-            ctx.globalCompositeOperation = "destination-out";
-            ctx.beginPath();
-            ctx.lineWidth = operation.brushSize;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-
+        if (points.length === 1) {
+            ctx.arc(points[0].x, points[0].y, operation.brushSize / 2, 0, 2 * Math.PI);
+            ctx.fill();
+        } else {
             ctx.moveTo(points[0].x, points[0].y);
 
             for (let i = 1; i < points.length; i++) {
                 ctx.lineTo(points[i].x, points[i].y);
             }
-
             ctx.stroke();
-            ctx.restore();
+        }
+    } else if (operation.type === "eraser") {
+        ctx.save();
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.lineWidth = operation.brushSize;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
         }
 
-else if (operation.type === "rectangle") {
-            ctx.beginPath();
-            ctx.lineWidth = operation.brushSize;
-            ctx.strokeStyle = operation.color;
-            ctx.fillStyle = operation.color;
+        ctx.stroke();
+        ctx.restore();
+    }
 
-            const x = Math.min(operation.startX, operation.endX);
-            const y = Math.min(operation.startY, operation.endY);
-            const width = Math.abs(operation.endX - operation.startX);
-            const height = Math.abs(operation.endY - operation.startY);
+    else if (operation.type === "rectangle") {
+        ctx.beginPath();
+        ctx.lineWidth = operation.brushSize;
+        ctx.strokeStyle = operation.color;
+        ctx.fillStyle = operation.color;
 
-            if (operation.filled) {
-                ctx.fillRect(x, y, width, height);
-            } else {
-                ctx.strokeRect(x, y, width, height);
-            }
-        } else if (operation.type === "circle") {
-            ctx.beginPath();
+        const x = Math.min(operation.startX, operation.endX);
+        const y = Math.min(operation.startY, operation.endY);
+        const width = Math.abs(operation.endX - operation.startX);
+        const height = Math.abs(operation.endY - operation.startY);
 
-            ctx.lineWidth = operation.brushSize;
-            ctx.strokeStyle = operation.color;
-            ctx.fillStyle = operation.color;
-
-            const radius = Math.sqrt(
-                Math.pow(operation.endX - operation.startX, 2) +
-                Math.pow(operation.endY - operation.startY, 2)
-            );
-
-            ctx.arc(
-                operation.startX,
-                operation.startY,
-                radius,
-                0,
-                2 * Math.PI
-            );
-
-            if (operation.filled) {
-                ctx.fill();
-            } else {
-                ctx.stroke();
-            }
-        } else if (operation.type === "triangle") {
-
-            ctx.beginPath();
-
-            ctx.lineWidth = operation.brushSize;
-            ctx.strokeStyle = operation.color;
-            ctx.fillStyle = operation.color;
-
-            ctx.moveTo(operation.startX, operation.startY);
-            ctx.lineTo(operation.endX, operation.endY);
-
-            ctx.lineTo(
-                operation.startX * 2 - operation.endX,
-                operation.endY
-            );
-
-            ctx.closePath();
-
-            if (operation.filled) {
-                ctx.fill();
-            } else {
-                ctx.stroke();
-            }
-
-
+        if (operation.filled) {
+            ctx.fillRect(x, y, width, height);
+        } else {
+            ctx.strokeRect(x, y, width, height);
         }
+    } else if (operation.type === "circle") {
+        ctx.beginPath();
+
+        ctx.lineWidth = operation.brushSize;
+        ctx.strokeStyle = operation.color;
+        ctx.fillStyle = operation.color;
+
+        const radius = Math.sqrt(
+            Math.pow(operation.endX - operation.startX, 2) +
+            Math.pow(operation.endY - operation.startY, 2)
+        );
+
+        ctx.arc(
+            operation.startX,
+            operation.startY,
+            radius,
+            0,
+            2 * Math.PI
+        );
+
+        if (operation.filled) {
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    } else if (operation.type === "triangle") {
+
+        ctx.beginPath();
+
+        ctx.lineWidth = operation.brushSize;
+        ctx.strokeStyle = operation.color;
+        ctx.fillStyle = operation.color;
+
+        ctx.moveTo(operation.startX, operation.startY);
+        ctx.lineTo(operation.endX, operation.endY);
+
+        ctx.lineTo(
+            operation.startX * 2 - operation.endX,
+            operation.endY
+        );
+
+        ctx.closePath();
+
+        if (operation.filled) {
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    }
+
+    else if (operation.type === "arrow") {
+        ctx.beginPath();
+
+        ctx.lineWidth = operation.brushSize;
+        ctx.strokeStyle = operation.color;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        drawArrow(
+            operation.startX,
+            operation.startY,
+            operation.endX,
+            operation.endY
+        );
+    }
 }
 
 
@@ -393,11 +441,11 @@ function drawfromHistory() {
         return;
     }
     for (const operation of drawingHistory) {
-            drawOperation(operation);
-        }
-
-
+        drawOperation(operation);
     }
+
+
+}
 
 export function loadDrawingHistory(history) {
     drawingHistory = Array.isArray(history) ? history : [];
@@ -437,8 +485,8 @@ socket.on("drawing-operation", (operation) => {
 });
 
 socket.on("clear-board", () => {
-clearDrawingHistory();
-setCanvasBackground();
+    clearDrawingHistory();
+    setCanvasBackground();
 });
 
 const cursorContainer = document.querySelector(".collaborator-cursors");
