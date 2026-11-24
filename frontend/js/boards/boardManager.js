@@ -43,7 +43,7 @@ const existingShareLinks = document.getElementById("existing-share-links");
 
 let selectedBoardId = null;
 let currentShareToken = null;
-let currentUsername = null;
+let currentUsername = localStorage.getItem("activeUsername");
 setCurrentBoardIdCallback(() => selectedBoardId);
 
 function showBoardStatus(message, isError = false) {
@@ -427,7 +427,9 @@ generateShareLinkBtn.addEventListener("click", async () => {
         shareLinkAnchor.href = shareLinkInput.value;
         shareLinkAnchor.hidden = false;
 
-        shareLinkLabel.textContent = `${currentUsername} / ${boardNameInput.value} / ${permission}`;
+        currentUsername = currentUsername || localStorage.getItem("activeUsername");
+
+        shareLinkLabel.textContent = `${currentUsername || "User"} / ${boardNameInput.value} / ${permission}`;
 
 
         shareStatus.textContent = `${permission} sharing link generated successfully.`;
@@ -457,7 +459,12 @@ copyShareLinkBtn.addEventListener("click", async () => {
 
 window.addEventListener("user-logged-in", async (event) => {
     const shareToken = event.detail?.shareToken;
-    currentUsername = event.detail?.username;
+    if (event.detail?.username) {
+        currentUsername = event.detail.username;
+        localStorage.setItem("activeUsername", currentUsername);
+    } else {
+        currentUsername = localStorage.getItem("activeUsername");
+    }
 
     if (!shareToken) {
         loadBoards();

@@ -22,10 +22,10 @@ export async function loginUser(email, password) {
 
     accessToken = data.accessToken;
     sessionStorage.setItem("activeUserId", String(data.user.id));
-    sessionStorage.setItem("activeUsername", data.user.username);
+    localStorage.setItem("activeUsername", data.user.username);
 
     console.log("Stored username:", sessionStorage.getItem("activeUsername"));
-    
+
     return data;
 }
 
