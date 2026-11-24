@@ -44,7 +44,10 @@ document.getElementById("login-btn").addEventListener("click", async () => {
         // Load the user's boards.
         window.dispatchEvent(
             new CustomEvent("user-logged-in", {
-                detail: { shareToken: sharedBoardToken }
+                detail: {
+                    shareToken: sharedBoardToken,
+                    username: data.user.username
+                }
             })
         );
 

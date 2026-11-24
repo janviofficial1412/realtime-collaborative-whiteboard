@@ -26,7 +26,6 @@ const createBoardBtn = document.querySelector("#create-board-btn");
 const renameBoardBtn = document.querySelector("#rename-board-btn");
 const deleteBoardBtn = document.querySelector("#delete-board-btn");
 
-const boardStatus = document.querySelector("#board-status");
 const boardManagement = document.querySelector("#board-management");
 const whiteboardScreen = document.querySelector("#whiteboard-screen");
 
@@ -37,11 +36,14 @@ const sharingControls = document.getElementById("sharing-controls");
 const generateShareLinkBtn = document.getElementById("generate-share-link-btn");
 const sharePermission = document.getElementById("share-permission");
 const shareLinkInput = document.getElementById("share-link-input");
+const shareLinkLabel = document.getElementById("share-link-label");
+const shareLinkAnchor = document.getElementById("share-link-anchor");
 const shareStatus = document.getElementById("share-status");
 const existingShareLinks = document.getElementById("existing-share-links");
 
 let selectedBoardId = null;
 let currentShareToken = null;
+let currentUsername = null;
 setCurrentBoardIdCallback(() => selectedBoardId);
 
 function showBoardStatus(message, isError = false) {
@@ -422,6 +424,12 @@ generateShareLinkBtn.addEventListener("click", async () => {
 
         shareLinkInput.value = new URL(data.sharePath, window.location.origin).href;
 
+        shareLinkAnchor.href = shareLinkInput.value;
+        shareLinkAnchor.hidden = false;
+
+        shareLinkLabel.textContent = `${currentUsername} / ${boardNameInput.value} / ${permission}`;
+
+
         shareStatus.textContent = `${permission} sharing link generated successfully.`;
 
     } catch (error) {
@@ -449,6 +457,7 @@ copyShareLinkBtn.addEventListener("click", async () => {
 
 window.addEventListener("user-logged-in", async (event) => {
     const shareToken = event.detail?.shareToken;
+    currentUsername = event.detail?.username;
 
     if (!shareToken) {
         loadBoards();

@@ -1,5 +1,15 @@
 import { canvas, ctx } from "./canvas.js";
 import socket from "../socket.js";
+import {
+    initializeTextBox,
+    createTextBox as createTextBoxFromModule,
+    renderTextOperation as renderTextOperationFromModule,
+    hasActiveTextBox,
+    finalizeTextBox as finalizeTextBoxFromModule,
+    getActiveTextBoxElement,
+    clearTextBoxes,
+    clearActiveTextBoxIfId
+} from "./textBox.js";
 
 let prevMouseX;
 let prevMouseY;
@@ -13,6 +23,7 @@ let lastMouseY;
 let onDrawingComplete = null;
 let getCurrentBoardId = null;
 let canEdit = true;
+const textBoxLayer = document.querySelector("#text-box-layer");
 
 export function setCanEdit(permission) {
     canEdit = permission === "EDIT";
@@ -56,6 +67,30 @@ export function setSelectedTool(tool) {
 export function setDrawingSaveCallback(callback) {
     onDrawingComplete = callback;
 }
+
+initializeTextBox({
+    textBoxLayer,
+
+    getDrawingHistory: () => drawingHistory,
+    setDrawingHistory: (history) => {
+        drawingHistory = history;
+    },
+
+    getCurrentBoardId: () => getCurrentBoardId?.(),
+    getSelectedColor: () => selectedColor,
+    getBrushWidth: () => brushWidth,
+
+    onDrawingComplete: (history) => {
+        if (onDrawingComplete) {
+            onDrawingComplete(history);
+        }
+    },
+
+    redrawCanvas: () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawfromHistory();
+    }
+});
 
 function drawRect(e) {
     if (!fillcolor.checked) {
@@ -145,6 +180,7 @@ function storeCoordinates(e) {
 
 function startDraw(e) {
     if (!canEdit) return;
+    if (selectedTool === "text") return;
 
     isDrawing = true;
 
@@ -225,6 +261,30 @@ function drawing(e) {
 canvas.addEventListener("mousedown", startDraw);
 canvas.addEventListener("mousemove", drawing);
 
+canvas.addEventListener("mousedown", (e) => {
+    if (!canEdit || selectedTool !== "text") return;
+
+    if (hasActiveTextBox()) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    e.stopPropagation();
+    createTextBoxFromModule(x, y);
+});
+
+document.addEventListener("mousedown", (e) => {
+    if (!hasActiveTextBox()) return;
+
+    const activeElement = getActiveTextBoxElement();
+
+    if (activeElement?.contains(e.target)) return;
+
+    finalizeTextBoxFromModule();
+});
+
 canvas.addEventListener("mouseup", (e) => {
     if (!currentOperation) return;
 
@@ -285,7 +345,7 @@ canvas.addEventListener("mouseleave", () => {
     isDrawing = false;
 });
 
-canvas.addEventListener("mousemove", (e) => {
+document.querySelector(".drawing-board").addEventListener("mousemove", (e) => {
     const boardId = getCurrentBoardId
         ? getCurrentBoardId()
         : null;
@@ -294,8 +354,8 @@ canvas.addEventListener("mousemove", (e) => {
 
     socket.emit("cursor-move", {
         boardId: boardId,
-        x: e.offsetX,
-        y: e.offsetY
+        x: e.clientX - canvas.getBoundingClientRect().left,
+        y: e.clientY - canvas.getBoundingClientRect().top
     });
 });
 
@@ -310,7 +370,6 @@ canvas.addEventListener("mouseleave", () => {
         boardId: boardId
     });
 });
-
 
 function drawOperation(operation) {
     const points = operation.points;
@@ -450,11 +509,26 @@ function drawfromHistory() {
 export function loadDrawingHistory(history) {
     drawingHistory = Array.isArray(history) ? history : [];
 
+    console.log("Loaded drawing history:", history);
+    console.log(
+        "Text operations:",
+        drawingHistory.filter(operation => operation.type === "text")
+    );
+
+    // Reset the previous board's text-box elements.
+    clearTextBoxes();
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawfromHistory();
+    drawingHistory.forEach(operation => {
+        if (operation.type === "text") {
+            renderTextOperationFromModule(operation);
+        }
+    });
 }
 
 export function clearDrawingHistory() {
+    clearTextBoxes();
     drawingHistory = [];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawfromHistory();
@@ -475,12 +549,74 @@ socket.on("drawing-preview", (operation) => {
 });
 
 socket.on("drawing-operation", (operation) => {
-    drawingHistory.push(operation);
+
+    if (operation.type === "text") {
+
+        // Find the existing text operation.
+        const existingIndex = drawingHistory.findIndex(
+            item => item.id === operation.id
+        );
+
+        // Update its history entry instead of creating duplicates.
+        if (existingIndex !== -1) {
+            drawingHistory[existingIndex] = operation;
+        } else {
+            drawingHistory.push(operation);
+        }
+
+        // Find the existing HTML text box.
+        const existingBox = textBoxLayer.querySelector(
+            `[data-operation-id="${operation.id}"]`
+        );
+
+        if (existingBox) {
+            const input = existingBox.querySelector(".text-box-input");
+
+            // Update the existing box with the latest content.
+            input.value = operation.text;
+            input.style.fontSize = `${operation.fontSize}px`;
+            input.style.color = operation.color;
+
+            existingBox.style.left = `${operation.x}px`;
+            existingBox.style.top = `${operation.y}px`;
+            existingBox.style.width = `${operation.width}px`;
+            existingBox.style.height = `${operation.height}px`;
+
+        } else {
+            // Create the box only when it doesn't exist.
+            renderTextOperationFromModule(operation);
+        }
+
+    } else {
+        drawingHistory.push(operation);
+    }
 
     remotePreview = null;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawfromHistory();
+});
 
+socket.on("delete-text-operation", ({ operationId }) => {
+    // Remove the deleted text from drawing history.
+    drawingHistory = drawingHistory.filter(
+        operation => operation.id !== operationId
+    );
+
+    // Remove the corresponding text box from the screen.
+    const box = textBoxLayer.querySelector(
+        `[data-operation-id="${operationId}"]`
+    );
+
+    if (box) {
+        box.remove();
+    }
+
+    // Close the editor if this was the currently active text box.
+    clearActiveTextBoxIfId(operationId);
+
+    // Redraw the remaining canvas operations.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawfromHistory();
 });
 

@@ -22,7 +22,10 @@ export async function loginUser(email, password) {
 
     accessToken = data.accessToken;
     sessionStorage.setItem("activeUserId", String(data.user.id));
+    sessionStorage.setItem("activeUsername", data.user.username);
 
+    console.log("Stored username:", sessionStorage.getItem("activeUsername"));
+    
     return data;
 }
 
@@ -43,6 +46,7 @@ export async function refreshAccessToken() {
     });
 
     const data = await response.json();
+
 
     if (!response.ok) {
         throw new Error(data.message || "Session expired.");

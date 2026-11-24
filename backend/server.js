@@ -210,6 +210,38 @@ io.on("connection", (socket) => {
         socket.to(roomName).emit("drawing-operation", operation);
     });
 
+    socket.on("delete-text-operation", ({ boardId, operationId } = {}) => {
+        const access = socket.data.boardAccess;
+
+        // Verify board access.
+        if (!access || Number(boardId) !== access.boardId) {
+            return socket.emit("board-access-denied", {
+                message: "You are not authorized for this board."
+            });
+        }
+
+        // Only EDIT users can delete text.
+        if (access.permission !== "EDIT") {
+            return socket.emit("permission-denied", {
+                message: "You have VIEW-only access."
+            });
+        }
+
+        // Validate the operation ID.
+        if (typeof operationId !== "string" || !operationId.trim()) {
+            return socket.emit("delete-operation-failed", {
+                message: "Invalid text operation ID."
+            });
+        }
+
+        const roomName = `board-${access.boardId}`;
+
+        // Notify all other collaborators.
+        socket.to(roomName).emit("delete-text-operation", {
+            operationId
+        });
+    });
+
     socket.on("clear-board", ({ boardId } = {}) => {
         const access = socket.data.boardAccess;
 
