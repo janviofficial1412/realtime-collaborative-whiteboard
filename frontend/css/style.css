@@ -38,7 +38,253 @@ section{
     display: none !important;
 }
 
+/* Design System */
+:root {
+  /* Palette */
+  --color-primary: #4A90E2;
+  --color-primary-dark: #2878d0;
+  --color-primary-darker: #1d4ed8;
+  --color-secondary: #6C757D;
+  --color-background: #F9FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #212529;
+  --color-text-secondary: #6C757D;
+  --color-border: #E2E8F0;
+  /* Spacing */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 1rem;     /* 16px */
+  --space-4: 1.5rem;   /* 24px */
+  --space-5: 2rem;     /* 32px */
+  /* Radii */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius: 0.5rem;    /* 8px */
+  --radius-lg: 1rem;   /* 16px */
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow: 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+  /* Typography */
+  --font-family-base: "Inter", system-ui, "Segoe UI", sans-serif;
+  --font-size-base: 1rem; /* 16px */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+/* Global resets and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%; /* 16px */
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+  outline: none;
+}
+
+/* Utility classes */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space-4);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background: var(--color-secondary);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
 /* Authentication screen */
+/* (unchanged block omitted for brevity) */
+
+/* -------------------------------------------------------------
+   Dashboard – Board Management styling (using design system)
+   ------------------------------------------------------------- */
+#board-management {
+  max-width: 900px;
+  margin: 4rem auto;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+#board-management h1 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.75rem; /* 28px */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.board-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.board-controls select,
+.board-controls #board-name-input {
+  flex: 1 1 200px;
+  min-width: 0;
+  height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+.board-controls select:focus,
+.board-controls #board-name-input:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.board-controls button,
+#back-to-boards-btn {
+  min-height: 2.5rem;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.9375rem; /* 15px */
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.board-controls button:hover,
+#back-to-boards-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+#rename-board-btn {
+  background: var(--color-secondary);
+}
+
+#rename-board-btn:hover {
+  background: #5a6268;
+}
+
+#delete-board-btn {
+  background: #fee2e2; /* light red */
+  color: #b91c1c;
+}
+
+#delete-board-btn:hover {
+  background: #fecaca;
+}
+
+.logout-btn {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 1000;
+  background: #e74c3c;
+  color: #fff;
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #c0392b;
+}
+
+/* Responsive adjustments for Dashboard */
+@media (max-width: 1024px) {
+  #board-management { margin: 3rem auto; }
+}
+@media (max-width: 768px) {
+  .board-controls { flex-direction: column; align-items: stretch; }
+  .board-controls select,
+  .board-controls #board-name-input,
+  .board-controls button,
+  #back-to-boards-btn { width: 100%; }
+}
+@media (max-width: 425px) {
+  #board-management { padding: var(--space-3); }
+}
+@media (max-width: 375px) {
+  #board-management { padding: var(--space-2); }
+}
+
 #auth-screen {
     position: fixed;
     inset: 0;
@@ -148,4 +394,178 @@ section{
     #signup-form {
         padding: 25px 20px;
     }
+}
+
+/* -------------------------------------------------------------
+   Whiteboard Workspace – Toolbar, Canvas, Dialogs (visual polish)
+   ------------------------------------------------------------- */
+
+/* Toolbar container */
+.tools-board {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Each toolbar row – keep as flex row with small gap */
+.tools-board .row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Options list (icons + labels) */
+.tools-board .options {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Individual option – icon + text */
+.tools-board .option {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.tools-board .option:hover,
+.tools-board .option.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.tools-board .option img {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem;
+  filter: invert(20%) sepia(90%) saturate(3000%) hue-rotate(900deg) brightness(100%) contrast(100%);
+}
+
+.tools-board .option:hover img,
+.tools-board .option.active img {
+  filter: none; /* show original color */
+}
+
+/* Slider styling – use native appearance with accent color */
+#size-slider {
+  -webkit-appearance: none;
+  width: 120px;
+  height: var(--space-1);
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+#size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem; height: 1rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: var(--shadow-sm);
+}
+#size-slider::-moz-range-thumb {
+  width: 1rem; height: 1rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Color palette circles */
+.colors .option {
+  width: 1.25rem; height: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+.colors .option:hover {
+  transform: scale(1.1);
+}
+.colors .option.selected {
+  outline: 2px solid var(--color-primary);
+}
+
+/* Action buttons (Clear Canvas, Save Image, Back) */
+.buttons button {
+  min-width: 8rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  transition: background-color .2s ease, transform .2s ease;
+}
+.buttons .clear-canvas {
+  background: var(--color-secondary);
+  color: #fff;
+}
+.buttons .clear-canvas:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+.buttons .save-img {
+  background: var(--color-primary);
+  color: #fff;
+}
+.buttons .save-img:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+/* Canvas container – give subtle frame */
+.drawing-board {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* Share dialog – unify with design system */
+#sharing-controls {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  gap: var(--space-2);
+}
+#sharing-controls button {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+}
+#sharing-controls button:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Responsive tweaks for toolbar and canvas */
+@media (max-width: 1024px) {
+  .tools-board { flex-direction: column; align-items: stretch; }
+  .tools-board .row { justify-content: space-between; }
+}
+@media (max-width: 768px) {
+  .tools-board { padding: var(--space-2); }
+  .buttons button { min-width: 100%; }
+}
+@media (max-width: 425px) {
+  .tools-board { padding: var(--space-1); }
+  #size-slider { width: 100px; }
+}
+@media (max-width: 375px) {
+  .tools-board { padding: var(--space-1); }
+  #size-slider { width: 80px; }
 }
