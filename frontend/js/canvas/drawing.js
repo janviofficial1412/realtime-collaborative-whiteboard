@@ -47,7 +47,7 @@ export function getActiveBoardId() {
 }
 
 export let brushWidth = 5;
-export let selectedColor = "#000";
+export let selectedColor = "#fff";
 export let selectedTool = "brush";
 
 let fillcolor = document.querySelector("#fill-color");

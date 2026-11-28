@@ -7,7 +7,10 @@ import {
 const toolBtns = document.querySelectorAll(".tool");
 const fillcolor = document.querySelector("#fill-color");
 const sizeSlider = document.querySelector("#size-slider");
-const colorBtns = document.querySelectorAll(".colors .option");
+
+const colorBtns = [...document.querySelectorAll(".colors .option")]
+    .filter(btn => !btn.querySelector("#color-picker"));
+
 const colorPicker = document.querySelector("#color-picker");
 
 toolBtns.forEach((btn) => {

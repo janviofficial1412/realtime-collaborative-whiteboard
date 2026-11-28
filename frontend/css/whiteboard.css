@@ -114,10 +114,6 @@
     background-color: greenyellow;
 }
 
-.colors .option:nth-child(5) {
-    background-color: skyblue;
-}
-
 .option #color-picker {
     opacity: 0;
     cursor: pointer;
@@ -318,8 +314,8 @@
 
 
 
-.tools-board .option:hover,
-.tools-board .option.active {
+.tools-board .row:not(.colors) .option:hover,
+.tools-board .row:not(.colors) .option.active {
     background: var(--color-primary);
     color: #fff;
 }
