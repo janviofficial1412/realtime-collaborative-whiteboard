@@ -19,6 +19,9 @@ const params = new URLSearchParams(window.location.search);
 
 const boardId = params.get("boardId");
 const shareToken = params.get("shareToken");
+let hasJoinedBoard = false;
+let activeBoardId = null;
+let activeShareToken = null;
 
 function requestBoardAccess(boardId, shareToken = null) {
     return new Promise((resolve, reject) => {
@@ -73,6 +76,24 @@ function requestBoardAccess(boardId, shareToken = null) {
     });
 }
 
+socket.on("connect", async () => {
+    if (!hasJoinedBoard || !activeBoardId) return;
+
+    try {
+        const access = await requestBoardAccess(
+            activeBoardId,
+            activeShareToken
+        );
+
+        setCanEdit(access.permission);
+
+        console.log("Successfully rejoined board:", activeBoardId);
+
+    } catch (error) {
+        console.error("Failed to rejoin board:", error.message);
+    }
+});
+
 async function openBoard() {
     try {
         if (!boardId && !shareToken) {
@@ -88,12 +109,18 @@ async function openBoard() {
 
         // Ask the backend for permission.
         const access = await requestBoardAccess(id, shareToken);
+        activeBoardId = id;
+        activeShareToken = shareToken;
+        hasJoinedBoard = true;
 
         // Store the active board ID for drawing operations.
         setCurrentBoardIdCallback(() => id);
 
         // Apply the user's editing permission.
         setCanEdit(access.permission);
+        if (access.permission === "VIEW") {
+            alert("You have view-only permission for this board. Editing is disabled.");
+        }
 
         // Initialize the canvas and load saved drawings.
         resizeCanvas();

@@ -33,8 +33,9 @@ export function setCanEdit(permission) {
     );
 
     editingControls.forEach((control) => {
-        control.style.pointerEvents = canEdit ? "auto" : "none";
+        control.disabled = !canEdit;
         control.style.opacity = canEdit ? "1" : "0.5";
+        control.style.pointerEvents = canEdit ? "auto" : "none";
     });
 }
 
