@@ -3,6 +3,10 @@
         {
             "source": "/share/:token",
             "destination": "/index.html"
+        },
+        {
+            "source": "/api/:path*",
+            "destination": "https://whiteboard-backend-8wsl.onrender.com/api/:path*"
         }
     ]
 }
