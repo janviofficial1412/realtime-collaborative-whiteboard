@@ -151,6 +151,12 @@ if (backToBoardsBtn) {
     });
 }
 
+socket.on("board-access-revoked", (data) => {
+    setCanEdit("VIEW");
+
+    alert(data.message || "Your access to this board has been revoked. You can only view it now.");
+});
+
 window.addEventListener("user-logged-in", () => {
     openBoard();
 });
