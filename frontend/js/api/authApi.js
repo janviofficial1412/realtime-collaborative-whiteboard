@@ -1,3 +1,6 @@
+import API_BASE_URL from "../config.js";
+
+
 let accessToken = null;
 
 export function getAccessToken() {
@@ -5,7 +8,7 @@ export function getAccessToken() {
 }
 
 export async function loginUser(email, password) {
-    const response = await fetch("/api/users/login", {
+    const response = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -36,7 +39,7 @@ export async function refreshAccessToken() {
         throw new Error("No active account found.");
     }
 
-    const response = await fetch("/api/users/refresh", {
+    const response = await fetch(`${API_BASE_URL}/api/users/refresh`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -64,7 +67,7 @@ export async function logoutUser() {
         throw new Error("No active account found.");
     }
 
-    const response = await fetch("/api/users/logout", {
+    const response = await fetch(`${API_BASE_URL}/api/users/logout`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -86,7 +89,7 @@ export async function logoutUser() {
 }
 
 export async function registerUser(username, email, password) {
-    const response = await fetch("/api/users/register", {
+    const response = await fetch(`${API_BASE_URL}/api/users/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

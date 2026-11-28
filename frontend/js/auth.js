@@ -118,7 +118,7 @@ export async function restoreSession() {
         return true;
 
     } catch (error) {
-        sessionStorage.removeItem("activeUserId");
+        localStorage.removeItem("activeUserId");
 
         if (currentPage !== "auth") {
             window.location.href = "/index.html";

@@ -1,6 +1,7 @@
 import { getAccessToken } from "./authApi.js";
+import API_BASE_URL from "../config.js";
 
-const API_URL = "/api/boards";
+const API_URL = `${API_BASE_URL}/api/boards`;
 
 function getAuthHeaders() {
     return {

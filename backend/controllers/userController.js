@@ -183,7 +183,7 @@ const loginUser = async (req, res) => {
         res.cookie(refreshCookieName, refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: "/api/users"
         });
@@ -344,7 +344,7 @@ const refreshAccessToken = async (req, res) => {
         res.cookie(`refreshToken_${requestedUserId}`, newRefreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
             path: "/api/users"
         });
@@ -386,7 +386,7 @@ const logoutUser = async (req, res) => {
             res.clearCookie(refreshCookieName, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 path: "/api/users"
             });
 
@@ -415,7 +415,7 @@ const logoutUser = async (req, res) => {
         res.clearCookie(refreshCookieName, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             path: "/api/users"
         });
 

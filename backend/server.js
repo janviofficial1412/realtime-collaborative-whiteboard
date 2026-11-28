@@ -6,10 +6,22 @@ const crypto = require("crypto");
 
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+const FRONTEND_URL =
+    process.env.FRONTEND_URL || "http://localhost:3000";
+
+const corsOptions = {
+    origin: FRONTEND_URL,
+    credentials: true
+};
+
+const io = new Server(server, {
+    cors: corsOptions
+});
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
@@ -42,6 +54,7 @@ const cookieParser = require("cookie-parser");
 const boardRoutes = require("./routes/boardRoutes");
 const userRoutes = require("./routes/userRoutes");
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
