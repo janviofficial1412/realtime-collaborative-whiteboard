@@ -1,7 +1,7 @@
 import { getAccessToken } from "./api/authApi.js";
 import API_BASE_URL from "./config.js";
 
-const socket = io({
+const socket = io(API_BASE_URL || window.location.origin, {
     autoConnect: false
 });
 
