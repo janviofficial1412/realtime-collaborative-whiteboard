@@ -265,7 +265,14 @@ export function createTextBox(x, y, existingOperation = null, isRestoring = fals
     input.className = "text-box-input";
     input.placeholder = "Type here...";
     input.style.color = getSelectedColor();
-    input.style.fontSize = `${Math.max(10, getBrushWidth() * 3)}px`;
+    const initialFontSize = Math.max(10, getBrushWidth() * 3);
+
+    input.style.fontSize = `${initialFontSize}px`;
+
+    if (!existingOperation) {
+        box.style.width = `${initialFontSize * 8}px`;
+        box.style.height = `${initialFontSize * 3}px`;
+    }
 
     if (existingOperation) {
         input.value = existingOperation.text;
