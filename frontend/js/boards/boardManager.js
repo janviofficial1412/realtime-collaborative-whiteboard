@@ -1,23 +1,13 @@
 import {
     getBoards,
     getBoard,
-    getSharedBoard,
     createBoard,
     renameBoard,
     deleteBoard,
-    saveDrawingData,
     createShareLink,
     getShareLinks,
     revokeShareLink
 } from "../api/boardApi.js";
-import { resizeCanvas } from "../canvas/canvas.js";
-import {
-    loadDrawingHistory,
-    setDrawingSaveCallback,
-    setCurrentBoardIdCallback,
-    setCanEdit
-} from "../canvas/drawing.js";
-import socket from "../socket.js";
 
 const boardSelect = document.querySelector("#board-select");
 const boardNameInput = document.querySelector("#board-name-input");
@@ -26,11 +16,6 @@ const createBoardBtn = document.querySelector("#create-board-btn");
 const renameBoardBtn = document.querySelector("#rename-board-btn");
 const deleteBoardBtn = document.querySelector("#delete-board-btn");
 
-const boardManagement = document.querySelector("#board-management");
-const whiteboardScreen = document.querySelector("#whiteboard-screen");
-
-const openBoardBtn = document.querySelector("#open-board-btn");
-const backToBoardsBtn = document.querySelector("#back-to-boards-btn");
 const shareBoardBtn = document.getElementById("share-board-btn");
 const sharingControls = document.getElementById("sharing-controls");
 const generateShareLinkBtn = document.getElementById("generate-share-link-btn");
@@ -42,9 +27,7 @@ const shareStatus = document.getElementById("share-status");
 const existingShareLinks = document.getElementById("existing-share-links");
 
 let selectedBoardId = null;
-let currentShareToken = null;
 let currentUsername = localStorage.getItem("activeUsername");
-setCurrentBoardIdCallback(() => selectedBoardId);
 
 function showBoardStatus(message, isError = false) {
     const boardStatus = document.querySelector("#board-status");
@@ -164,30 +147,6 @@ async function loadBoards() {
 
 }
 
-export async function saveCurrentBoard(drawingHistory) {
-    if (!selectedBoardId) {
-        throw new Error("Please open a board first.");
-    }
-
-    const name = boardNameInput.value.trim();
-
-    return await saveDrawingData(
-        selectedBoardId,
-        name,
-        drawingHistory,
-        currentShareToken
-    );
-}
-
-setDrawingSaveCallback(async (history) => {
-    try {
-        await saveCurrentBoard(history);
-        showBoardStatus("Drawing saved successfully.");
-    } catch (error) {
-        console.error("Error saving drawing:", error);
-        showBoardStatus(error.message, true);
-    }
-});
 
 shareBoardBtn.addEventListener("click", () => {
     sharingControls.hidden = !sharingControls.hidden;
@@ -312,102 +271,15 @@ deleteBoardBtn.addEventListener("click", async () => {
 
 });
 
+const openBoardBtn = document.getElementById("open-board-btn");
 
-function showBoardManagement() {
-    boardManagement.hidden = false;
-    whiteboardScreen.hidden = true;
-}
-
-function showWhiteboard() {
-    boardManagement.hidden = true;
-    whiteboardScreen.hidden = false;
-}
-
-function requestBoardAccess(boardId, shareToken = null) {
-    console.log("requestBoardAccess called:", {
-        boardId,
-        shareToken,
-        time: Date.now()
-    });
-    return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-            cleanup();
-            reject(new Error("Board access request timed out."));
-        }, 10000);
-
-        function cleanup() {
-            clearTimeout(timeout);
-            socket.off("board-access-granted", handleGranted);
-            socket.off("board-access-denied", handleDenied);
-        }
-
-        function handleGranted(data) {
-            if (Number(data.boardId) !== Number(boardId)) return;
-
-            cleanup();
-            resolve(data);
-        }
-
-        function handleDenied(data) {
-            cleanup();
-            reject(new Error(data.message || "Board access denied."));
-        }
-
-        socket.on("board-access-granted", handleGranted);
-        socket.on("board-access-denied", handleDenied);
-
-        socket.emit("join-board", { boardId, shareToken });
-    });
-}
-
-openBoardBtn.addEventListener("click", async () => {
-    const boardId = boardSelect.value;
-
-    if (!boardId) {
+openBoardBtn.addEventListener("click", () => {
+    if (!selectedBoardId) {
         showBoardStatus("Please select a board first.", true);
         return;
     }
 
-    try {
-        currentShareToken = null;
-
-        const board = await getBoard(boardId);
-        const access = await requestBoardAccess(board.id);
-        setCanEdit(access.permission);
-
-        shareBoardBtn.hidden = false;
-        sharingControls.hidden = true;
-
-        console.log("Board permission:", access.permission);
-
-        boardManagement.hidden = true;
-        whiteboardScreen.hidden = false;
-
-        requestAnimationFrame(() => {
-            const resized = resizeCanvas();
-
-            if (resized) {
-                showBoardStatus("Board opened successfully.");
-            } else {
-                showBoardStatus("Canvas dimensions could not be initialized.", true);
-            }
-            loadDrawingHistory(board.drawing_data);
-            showWhiteboard();
-        });
-    } catch (error) {
-        console.error("Error opening board:", error);
-        showBoardStatus("Unable to open this board.", true);
-    }
-});
-
-backToBoardsBtn.addEventListener("click", () => {
-    currentShareToken = null;
-    selectedBoardId = null;
-    boardNameInput.value = "";
-
-    setCanEdit("EDIT");
-    showBoardManagement();
-    loadBoards();
+    window.location.href = `/whiteboard.html?boardId=${selectedBoardId}`;
 });
 
 generateShareLinkBtn.addEventListener("click", async () => {
@@ -457,49 +329,17 @@ copyShareLinkBtn.addEventListener("click", async () => {
 });
 
 
-window.addEventListener("user-logged-in", async (event) => {
-    const shareToken = event.detail?.shareToken;
-    if (event.detail?.username) {
-        currentUsername = event.detail.username;
-        localStorage.setItem("activeUsername", currentUsername);
-    } else {
-        currentUsername = localStorage.getItem("activeUsername");
-    }
+window.addEventListener("user-logged-in", () => {
+    currentUsername = localStorage.getItem("activeUsername");
 
-    if (!shareToken) {
-        loadBoards();
+    const params = new URLSearchParams(window.location.search);
+    const shareToken = params.get("shareToken");
+
+    if (shareToken) {
+        window.location.href =
+            `/whiteboard.html?shareToken=${encodeURIComponent(shareToken)}`;
         return;
     }
 
-    try {
-        showBoardStatus("Opening shared board...");
-
-        const board = await getSharedBoard(shareToken);
-        const boardId = board.id ?? board.board_id;
-
-        const access = await requestBoardAccess(boardId, shareToken);
-
-        selectedBoardId = boardId;
-        currentShareToken = shareToken;
-
-        boardNameInput.value = board.board_name;
-        setCanEdit(access.permission);
-
-        shareBoardBtn.hidden = true;
-        sharingControls.hidden = true;
-
-        showWhiteboard();
-
-        requestAnimationFrame(() => {
-            resizeCanvas();
-            loadDrawingHistory(board.drawing_data);
-        });
-
-    } catch (error) {
-        console.error("Shared board access failed:", error);
-        currentShareToken = null;
-        showBoardManagement();
-        showBoardStatus(error.message, true);
-        loadBoards();
-    }
+    loadBoards();
 });

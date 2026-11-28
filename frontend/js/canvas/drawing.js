@@ -288,6 +288,19 @@ document.addEventListener("mousedown", (e) => {
 canvas.addEventListener("mouseup", (e) => {
     if (!currentOperation) return;
 
+    // Ignore clicks that did not create an actual brush/eraser stroke.
+    if (
+        (currentOperation.type === "brush" ||
+            currentOperation.type === "eraser") &&
+        currentOperation.points.length < 2
+    ) {
+        currentOperation = null;
+        isDrawing = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawfromHistory();
+        return;
+    }
+
     currentOperation.endX = e.offsetX;
     currentOperation.endY = e.offsetY;
     isDrawing = false;
@@ -319,6 +332,17 @@ canvas.addEventListener("mouseup", (e) => {
 
 canvas.addEventListener("mouseleave", () => {
     if (currentOperation) {
+        if (
+            (currentOperation.type === "brush" ||
+                currentOperation.type === "eraser") &&
+            currentOperation.points.length < 2
+        ) {
+            currentOperation = null;
+            isDrawing = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawfromHistory();
+            return;
+        }
         currentOperation.endX = lastMouseX;
         currentOperation.endY = lastMouseY;
 

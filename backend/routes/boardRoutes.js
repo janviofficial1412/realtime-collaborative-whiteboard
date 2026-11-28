@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("./db");
+const pool = require("../db");
 const crypto = require("crypto");
-const { authenticateToken } = require("./middleware/authMiddleware");
+const { authenticateToken } = require("../middleware/authMiddleware");
 
 router.use(authenticateToken);
 

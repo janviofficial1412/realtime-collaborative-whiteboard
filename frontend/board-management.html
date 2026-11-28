@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Boards</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/boardmanagement.css">
+</head>
+
+<body data-page="boards">
+    <div class="container">
+        <section id="board-management">
+            <h1> My Boards </h1>
+            <button id="logout-btn" type="button" class="logout-btn">Logout</button>
+            <div class="board-controls">
+                <select id="board-select">
+                    <option value="">Select a board</option>
+                </select>
+
+                <input type="text" id="board-name-input" placeholder="Enter board name">
+
+                <button id="create-board-btn" type="button">
+                    Create Board
+                </button>
+
+                <button id="rename-board-btn" type="button">
+                    Rename Board
+                </button>
+
+                <button id="delete-board-btn" type="button">
+                    Delete Board
+                </button>
+                <button id="open-board-btn" type="button">Open Board</button>
+
+                <button id="share-board-btn" type="button">
+                    Share Board
+                </button>
+
+                <p id="board-status" role="status"></p>
+
+                <div id="sharing-controls" hidden>
+                    <label for="share-permission">Permission:</label>
+
+                    <select id="share-permission">
+                        <option value="VIEW">View only</option>
+                        <option value="EDIT">Can edit</option>
+                    </select>
+
+                    <button id="generate-share-link-btn" type="button">
+                        Generate Link
+                    </button>
+
+                    <p id="share-status" role="status"></p>
+
+                    <p id="share-link-label"></p>
+
+                    <a id="share-link-anchor" href="#" target="_blank" rel="noopener noreferrer" hidden>
+                        Share Board
+                    </a>
+
+                    <input type="hidden" id="share-link-input">
+                    <button id="copy-share-link-btn" type="button">
+                        Copy Link
+                    </button>
+
+                    <div id="existing-share-links"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="/js/main.js"></script>
+</body>
+
+</html>

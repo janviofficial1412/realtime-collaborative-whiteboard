@@ -21,16 +21,16 @@ export async function loginUser(email, password) {
     }
 
     accessToken = data.accessToken;
-    sessionStorage.setItem("activeUserId", String(data.user.id));
+    localStorage.setItem("activeUserId", String(data.user.id));
     localStorage.setItem("activeUsername", data.user.username);
 
-    console.log("Stored username:", sessionStorage.getItem("activeUsername"));
+    console.log("Stored username:", localStorage.getItem("activeUsername"));
 
     return data;
 }
 
 export async function refreshAccessToken() {
-    const userId = sessionStorage.getItem("activeUserId");
+    const userId = localStorage.getItem("activeUserId");
 
     if (!userId) {
         throw new Error("No active account found.");
@@ -58,7 +58,7 @@ export async function refreshAccessToken() {
 }
 
 export async function logoutUser() {
-    const userId = sessionStorage.getItem("activeUserId");
+    const userId = localStorage.getItem("activeUserId");
 
     if (!userId) {
         throw new Error("No active account found.");
@@ -80,7 +80,7 @@ export async function logoutUser() {
     }
 
     accessToken = null;
-    sessionStorage.removeItem("activeUserId");
+    localStorage.removeItem("activeUserId");
 
     return data;
 }

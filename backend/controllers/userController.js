@@ -304,7 +304,8 @@ const refreshAccessToken = async (req, res) => {
         const newRefreshToken = jwt.sign(
             {
                 userId: storedToken.user_id,
-                tokenFamilyId: storedToken.token_family_id
+                tokenFamilyId: storedToken.token_family_id,
+                jti: crypto.randomUUID()
             },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }

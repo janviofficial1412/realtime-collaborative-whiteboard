@@ -39,7 +39,7 @@ io.use((socket, next) => {
 
 const cookieParser = require("cookie-parser");
 
-const boardRoutes = require("./boardRoutes");
+const boardRoutes = require("./routes/boardRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 app.use(express.json());
@@ -355,8 +355,10 @@ io.on("connection", (socket) => {
     });
 });
 
-server.listen(3000, () => {
-    console.log("App listening at http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+    console.log(`App listening on port ${PORT}`);
 });
 
 

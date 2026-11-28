@@ -1,3 +1,15 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+    gap: 10px;
+    padding: 10px;
+    max-width: none;
+    overflow: hidden;
+}
+
 .tools-board {
     display: flex;
     flex-direction: row;
@@ -5,180 +17,153 @@
     flex-wrap: wrap;
     flex-shrink: 0;
     width: 100%;
-    padding: 15px 22px;
-    gap: 10px;
     box-sizing: border-box;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
 }
 
-.tools-board .row{
+.tools-board .row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     margin-bottom: 0;
 }
 
 .tools-board .row:not(:last-child) {
-    border-right: 1px solid #ddd;
-    padding-right: 20px;
-    margin-right: 20px;
+    border-right: 1px solid var(--color-border);
+    padding-right: var(--space-3);
+    margin-right: var(--space-3);
 }
 
-.row .options {
+.tools-board .options {
     display: flex;
     align-items: center;
     list-style: none;
-    margin: 10px 0 0 5px;
-    gap: 10px;
+    margin: 0;
+    padding: 0;
+    gap: var(--space-2);
 }
 
-.row .options .option{
+.tools-board .option {
     display: flex;
-    cursor: pointer;
     align-items: center;
-    margin-bottom: 0;
-}
-
-.option img {
-    width: 20px;
-    height: 20px;
-}
-
-.option:is(:hover,.active) img{
-    filter : invert(20%) sepia(90%) saturate(3000%) hue-rotate(900deg) brightness(100%) contrast(100%);
-}
-
-.option:where(span,label){
-    color: #5A6168;
     cursor: pointer;
-    padding-left: 10px;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+    transition: background-color .2s ease, color .2s ease;
 }
 
-.option.option:is(:hover,.active):where(span,label){
-    color: #4A98F7;
+.tools-board .option img {
+    width: 1.25rem;
+    height: 1.25rem;
+    filter: invert(30%)
 }
 
-.option #fill-color{
+
+
+.tools-board .option:hover label,
+.tools-board .option.active label {
+    color: #fff;
+}
+
+.option #fill-color {
     cursor: pointer;
     height: 15px;
-    width:15px;
+    width: 15px;
 }
 
-#fill-color:checked ~ label{
+#fill-color:checked~label {
     color: #4A98F7;
 }
 
-.option #size-slider{
-    width: 100%;
-    height:5px;
-    margin-top: 10px;
-}
-
-.colors .options{
+.colors .options {
     display: flex;
     justify-content: space-between;
 }
 
-.colors .option{
-    width: 20px;
-    height: 20px;
+.colors .option {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--color-border);
     border-radius: 50%;
     margin-top: 3px;
     position: relative;
+    cursor: pointer;
+    transition: transform .2s ease;
 }
 
-.colors .option:nth-child(1){
+.colors .option:nth-child(1) {
     background-color: #fff;
-    border : 1px solid black;
+    border: 1px solid black;
 }
 
-.colors .option:nth-child(2){
+.colors .option:nth-child(2) {
     background-color: black;
 }
 
-.colors .option:nth-child(3){
+.colors .option:nth-child(3) {
     background-color: red;
 }
 
-.colors .option:nth-child(4){
+.colors .option:nth-child(4) {
     background-color: greenyellow;
 }
 
-.colors .option:nth-child(5){
+.colors .option:nth-child(5) {
     background-color: skyblue;
 }
 
-.option #color-picker{
-    opacity:0;
+.option #color-picker {
+    opacity: 0;
     cursor: pointer;
 }
 
-.colors .option.selected::before{
-    position: absolute;
-    content : "";
-    top: 50%;
-    left : 50%;
-    height : 12px;
-    width : 12px;
-    border-radius: inherit;
-    background: inherit;
-    border: 2px solid #fff;
-    transform: translate(-50%, -50%);
-} 
-
-.colors .option:first-child .selected::before{
-    border-color: #ccc;
-}
-
-.buttons button{
-    width:100%;
-    color : #fff;
+.buttons button {
+    width: 100%;
+    min-width: 8rem;
+    color: #fff;
     border: none;
-    padding: 10px 0;
-    font-size: 0.9rem;
-    border-radius: 5px;
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-sm);
     margin-bottom: 15px;
     cursor: pointer;
+    transition: background-color .2s ease, transform .2s ease;
 }
 
-.buttons .clear-canvas{
-    color : #fff;
-    background: #6C757D;
-    border: 1px solid #6C757D;
-    transition: all 0.35 ease;
-}
-
-.clear-canvas:hover{
-    color : #6C757D;
-    background: none;
-}
-
-.buttons .save-img{
-    background: #4A98F7;
+.buttons .clear-canvas {
+    background: var(--color-secondary);
     color: #fff;
-    border : 1px solid #4A98F7;
-    transition: all 0.3 ease;
+    border: 1px solid var(--color-secondary);
 }
 
-.save-img:hover{
-    color: #4A98F7;
-    background: #fff;
+.buttons .save-img {
+    background: var(--color-primary);
+    color: #fff;
+    border: 1px solid var(--color-primary);
 }
 
 .drawing-board {
+    display: block;
     position: relative;
     flex: 1;
     min-width: 0;
     min-height: 0;
     width: 100%;
     overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #dddddd;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
 }
 
-.collaborator-cursors {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 2;
-}
 
 
 .drawing-board canvas {
@@ -187,111 +172,25 @@
     height: 100%;
 }
 
-#whiteboard-screen {
-    width: 100%;
-    min-height: 100vh;
-    padding: 12px;
-    box-sizing: border-box;
-}
 
 #back-to-boards-btn {
     margin-bottom: 12px;
-}
-
-@media (max-width: 600px) {
-    #board-management {
-        margin: 25px auto;
-        padding: 22px;
-    }
-
-    #board-management h1 {
-        font-size: 23px;
-    }
-
-    .board-controls button {
-        flex: 1 1 100%;
-    }
-}
-
-#whiteboard-screen:not([hidden]) {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    box-sizing: border-box;
-}
-
-/* Sharing controls */
-#share-board-btn {
-    background-color: #4A98F7;
-    color: white;
-}
-
-#sharing-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    margin-top: 12px;
-    padding: 15px;
-    background-color: #f5f7fb;
-    border: 1px solid #dce3ed;
-    border-radius: 8px;
-}
-
-#sharing-controls[hidden] {
-    display: none;
-}
-
-#sharing-controls label {
-    font-weight: 600;
-}
-
-#share-permission,
-#share-link-input {
-    padding: 9px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#share-permission {
-    cursor: pointer;
-}
-
-#share-link-input {
-    flex: 1;
-    min-width: 220px;
-    background-color: white;
-}
-
-#sharing-controls button {
-    padding: 9px 14px;
+    padding: 10px 18px;
+    background: #7c3aed;
+    color: #fff;
     border: none;
-    border-radius: 5px;
-    background-color: #4A98F7;
-    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color .2s ease, transform .2s ease;
 }
 
-#sharing-controls button:hover,
-#share-board-btn:hover {
-    background-color: #2878d0;
+#back-to-boards-btn:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
 }
 
-#share-status {
-    width: 100%;
-    margin: 0;
-    font-size: 13px;
-}
-
-#existing-share-links {
-    width: 100%;
-}
 
 .collaborator-cursors {
     position: absolute;
@@ -331,10 +230,6 @@
     font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
-}
-
-.drawing-board {
-    position: relative;
 }
 
 #text-box-layer {
@@ -415,4 +310,121 @@
     top: 50%;
     transform: translateY(-50%);
     cursor: ew-resize;
+}
+
+/* -------------------------------------------------------------
+   Whiteboard Workspace – Toolbar, Canvas, Dialogs (visual polish)
+   ------------------------------------------------------------- */
+
+
+
+.tools-board .option:hover,
+.tools-board .option.active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.tools-board .option:hover img,
+.tools-board .option.active img {
+    filter: none;
+    /* show original color */
+}
+
+/* Slider styling – use native appearance with accent color */
+#size-slider {
+    margin-top: 10px;
+    -webkit-appearance: none;
+    width: 120px;
+    height: var(--space-1);
+    background: var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+}
+
+#size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+#size-slider::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 2px solid #fff;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.colors .option:hover {
+    transform: scale(1.1);
+}
+
+.colors .option.selected {
+    outline: 2px solid var(--color-primary);
+}
+
+
+.buttons .clear-canvas:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.buttons .save-img:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+}
+
+/* Responsive tweaks for toolbar and canvas */
+@media (max-width: 1024px) {
+    .tools-board {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tools-board .row {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--space-2) 0;
+        margin: 0;
+    }
+
+    .tools-board .row:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .tools-board {
+        padding: var(--space-2);
+    }
+
+    .buttons button {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 425px) {
+    .tools-board {
+        padding: var(--space-1);
+    }
+
+    #size-slider {
+        width: 100px;
+    }
+}
+
+@media (max-width: 375px) {
+    #size-slider {
+        width: 80px;
+    }
 }
