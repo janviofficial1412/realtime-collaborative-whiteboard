@@ -4,6 +4,7 @@ import {
     getActiveBoardId
 } from "./drawing.js";
 import socket from "../socket.js";
+import { toPng } from "https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/+esm";
 
 const clearCanvasBtn = document.querySelector(".clear-canvas");
 const saveImgBtn = document.querySelector(".save-img");
@@ -29,12 +30,26 @@ const confirmed = confirm(
 
 
 if (saveImgBtn) {
-    saveImgBtn.addEventListener("click", () => {
-        const link = document.createElement("a");
+    saveImgBtn.addEventListener("click", async () => {
+        const board = document.querySelector(".drawing-board");
 
-        link.download = `${Date.now()}.jpg`;
-        link.href = canvas.toDataURL();
+        try {
+            const image = await toPng(board, {
+                cacheBust: true,
+                pixelRatio: window.devicePixelRatio || 1,
+                filter: (node) =>
+                    !node.classList?.contains("collaborator-cursors") &&
+                    !node.classList?.contains("text-box-handle")
+            });
 
-        link.click();
+            const link = document.createElement("a");
+            link.download = `${Date.now()}.png`;
+            link.href = image;
+            link.click();
+
+        } catch (error) {
+            console.error("Image export failed:", error);
+            alert("Unable to export the whiteboard.");
+        }
     });
 }
