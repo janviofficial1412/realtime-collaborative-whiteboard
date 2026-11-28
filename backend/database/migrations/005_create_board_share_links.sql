@@ -1,7 +1,7 @@
 CREATE TABLE board_share_links (
     id BIGSERIAL PRIMARY KEY,
 
-    board_id BIGINT NOT NULL
+    board_id INTEGER NOT NULL
         REFERENCES boards(id) ON DELETE CASCADE,
 
     token_hash CHAR(64) NOT NULL UNIQUE,
