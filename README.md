@@ -1,168 +1,132 @@
 # Real-Time Collaborative Whiteboard
 
-A full-stack, browser-based collaborative whiteboard that enables users to create boards, draw, edit content, and collaborate with others in real time.
+A full-stack web application where users can create whiteboards, draw together in real time, and share boards with controlled access permissions.
 
-Built using **HTML5, CSS3, JavaScript, Node.js, Express.js, PostgreSQL, and Socket.IO**, the application combines interactive canvas-based drawing with secure authentication, persistent drawing history, and permission-controlled board sharing.
+**Live Application:** https://realtime-collaborative-whiteboard-f-five.vercel.app/
 
-## 🚀 Features
+> **Device note:** The application is designed primarily for laptop and desktop use. A larger screen and mouse provide the most comfortable drawing experience. Mobile drawing is not currently the primary supported experience.
 
-### 1. Interactive Whiteboard
+---
 
-- Freehand drawing with customizable colors and brush sizes.
-- Eraser functionality.
-- Drawing tools for rectangles, circles, triangles, and arrows.
+## Overview
+
+This project started as a simple JavaScript Paint application. It evolved into a collaborative whiteboard after exploring a key question: what if multiple users could work on the same canvas at the same time?
+
+The result combines canvas-based drawing, real-time communication, persistent storage, authentication, and permission-based sharing in one application.
+
+## Features
+
+### Interactive Whiteboard
+- Freehand drawing with adjustable brush size and color.
+- Eraser tool.
+- Rectangle, circle, triangle, and arrow tools.
 - Fill color support.
 - Text boxes with editing, dragging, and resizing.
-- Clear canvas functionality with confirmation.
-- Save drawings as image files.
-- Interactive drawing toolbar.
-- Drawing history restoration when reopening a board.
-- Persistent drawing operations stored in PostgreSQL.
+- Clear canvas with confirmation.
+- Export the board as an image.
+- Restore saved drawing content when reopening a board.
 
-### 2. User Authentication and Security
+### Board Management
+- Create and view multiple boards.
+- Rename and delete boards.
+- Store board content persistently in PostgreSQL.
+- Restrict board-management actions to the board owner.
 
+### Real-Time Collaboration
+- Synchronize drawing operations using Socket.IO.
+- Show live drawing previews.
+- Display collaborators' live cursors and identifying labels.
+- Synchronize text creation, editing, movement, resizing, and deletion.
+- Synchronize canvas-clearing actions.
+- Restore existing board content for collaborators joining a board.
+
+### Sharing and Permissions
+- Generate unique links to share individual boards.
+- **VIEW access:** collaborators can see the board and receive live updates, but cannot make changes.
+- **EDIT access:** collaborators can draw and modify board content.
+- Revoke sharing links.
+- Apply permission checks to protected REST API and Socket.IO operations.
+- Switch active collaborators to read-only access when a share link is revoked.
+
+### Authentication and Security
 - User registration and login.
-- Password hashing using bcrypt.
-- Input validation and duplicate email prevention.
+- Password hashing with bcrypt.
+- Input validation and duplicate-email prevention.
 - JWT-based access-token authentication.
-- Refresh-token management with token rotation.
-- Secure refresh-token storage using hashing.
-- Refresh-token reuse detection.
-- Logout and refresh-token revocation.
-- Protected backend API routes.
-- Authenticated Socket.IO connections.
+- Refresh-token rotation and revocation.
+- Hashed refresh-token storage and reuse detection.
+- Protected backend routes and authenticated Socket.IO connections.
 
-### 3. Board Management
+## Screenshots and Demo
 
-- Create new boards.
-- Retrieve and view existing boards.
-- Rename boards.
-- Delete boards.
-- Board ownership management.
-- Persistent board data using PostgreSQL JSONB.
-- Protected board operations based on user permissions.
+Visit the live application:
 
-### 4. Real-Time Collaboration
+**https://realtime-collaborative-whiteboard-f-five.vercel.app/**
 
-- Real-time drawing synchronization using Socket.IO.
-- Board-specific communication rooms.
-- Live drawing previews.
-- Real-time cursor tracking.
-- Collaborator identification through cursor labels.
-- Synchronized text creation, editing, movement, resizing, and deletion.
-- Real-time canvas clearing.
-- Collaborator connection and disconnection handling.
-- Permission validation for collaborative operations.
+You can add screenshots or a short demo recording to this section as the project presentation assets are prepared.
 
-### 5. Board Sharing and Access Management
+## Technology Stack
 
-- Generate unique sharing links for individual boards.
-- Support for two permission levels:
-  - **VIEW:** Allows collaborators to view the board and receive real-time updates without modifying its contents.
-  - **EDIT:** Allows collaborators to draw, edit content, and clear the canvas.
-- Login and registration required before accessing shared boards.
-- Board owners retain full management permissions.
-- Revoke active sharing links.
-- Validate permissions for both REST API and Socket.IO operations.
-- Share-link tokens are generated randomly and stored as hashes in the database.
-
-## 🛠️ Technology Stack
-
-| Technology | Purpose |
+| Technology | Role |
 |---|---|
-| HTML5 | Application structure |
+| HTML5 | Frontend structure |
 | CSS3 | Styling and layout |
 | JavaScript | Frontend application logic |
 | HTML5 Canvas API | Drawing and rendering |
 | Node.js | Backend runtime |
-| Express.js | REST API development |
-| PostgreSQL | Relational database |
-| JSONB | Persistent drawing operations |
-| Socket.IO | Real-time communication |
+| Express.js | REST API and server |
+| PostgreSQL | Persistent relational storage |
+| JSONB | Storing board drawing data |
+| Socket.IO | Real-time collaboration |
 | bcrypt | Password hashing |
 | JSON Web Tokens (JWT) | Access-token authentication |
-| Refresh Tokens | Session renewal and management |
+| Refresh tokens | Session renewal and revocation |
+| Vercel | Frontend deployment |
+| Render | Backend deployment |
+| Neon | Hosted PostgreSQL database |
 
-## 📂 Project Structure
+## Architecture
 
-```text
-realtime-collaborative-whiteboard/
-│
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   │   └── style.css
-|   |   └──whiteboard.css
-|   |   └──boardmanagement.css
-│   └── js/
-│       ├── main.js
-│       ├── api/
-│       │   └── boardApi.js
-│       ├── boards/
-│       │   └── boardManager.js
-│       ├── canvas/
-│       │   ├── canvas.js
-│       │   ├── drawing.js
-│       │   ├── textBox.js
-│       │   ├── tools.js
-│       │   └── actions.js
-│       └── ...
-│
-├── backend/
-│   ├── controllers/
-│   ├── routes/
-│   ├── middleware/
-│   ├── database/
-│   │   ├── migrations/
-│   │   └── schema.sql
-│   ├── server.js
-│   ├── db.js
-│   ├── package.json
-│   └── package-lock.json
-│
-├── .gitignore
-└── README.md
-```
+The application uses a client-server architecture.
 
-*This is a representative structure. Additional modules and files may exist in the repository.*
+1. **Frontend:** HTML, CSS, and JavaScript provide the user interface and canvas tools. The frontend communicates with the backend through REST APIs and Socket.IO.
+2. **Backend:** Node.js and Express.js handle authentication, board management, authorization, and API requests. Socket.IO manages real-time collaboration.
+3. **Database:** PostgreSQL stores users, boards, authentication records, sharing records, and persistent drawing data. Drawing content is stored using JSONB.
 
-## ⚙️ Setup and Installation
+### Deployment
+
+| Component | Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend and Socket.IO server | Render |
+| PostgreSQL database | Neon |
+
+## Running Locally
 
 ### Prerequisites
-
-Install the following before running the application:
-
-- [Node.js](https://nodejs.org/)
-- [PostgreSQL](https://www.postgresql.org/)
-- npm
+- Node.js and npm
+- PostgreSQL
 - Git
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/janviofficial1412/realtime-collaborative-whiteboard.git
-```
-
-Navigate into the project directory:
-
-```bash
 cd realtime-collaborative-whiteboard
 ```
 
-### 2. Install Backend Dependencies
+### 2. Install backend dependencies
 
 ```bash
 cd backend
 npm install
 ```
 
-### 3. Configure Environment Variables
+### 3. Configure environment variables
 
-Create a `.env` file inside the backend directory.
+Create a `.env` file in the `backend` directory. Add the database connection settings, authentication secrets, frontend origin, and any other variables required by the backend configuration.
 
-Configure your PostgreSQL connection details using the variable names expected by the backend configuration.
-
-Example:
+Example database settings:
 
 ```env
 DB_HOST=localhost
@@ -172,118 +136,104 @@ DB_USER=your_postgres_username
 DB_PASSWORD=your_postgres_password
 ```
 
-Also configure the authentication secrets and other required environment variables according to the backend configuration.
+Use the exact environment-variable names expected by the backend code. Do not commit your `.env` file or expose database credentials, token secrets, or other sensitive values.
 
-**Never commit `.env` files, database credentials, JWT secrets, or other sensitive information to GitHub.**
+### 4. Create the database
 
-### 4. Set Up PostgreSQL
-
-Create a database named:
+Create a PostgreSQL database named `whiteboard_db` (or use the database name configured in your environment):
 
 ```sql
 CREATE DATABASE whiteboard_db;
 ```
 
-Run the database schema and migration SQL files in the required order.
+Apply the database migration files included in the backend project in their intended order. Ensure the backend is configured to connect to this database.
 
-Ensure that the required tables for users, boards, drawing data, refresh tokens, and sharing links are created.
+### 5. Start the backend
 
-### 5. Start the Backend
-
-From the backend directory, run the start command configured in `package.json`.
-
-For example:
+From the `backend` directory, run the start script defined in `package.json`:
 
 ```bash
 npm start
 ```
 
-If no start script is configured, run the server entry point directly:
+If the project does not define a start script, start the server using its configured entry point.
 
-```bash
-node server.js
-```
+### 6. Open the frontend
 
-The application should be available at:
+Open the frontend entry page using a local development server. Configure the frontend API and Socket.IO connection settings to point to your local backend.
+
+The local backend runs at:
 
 ```text
 http://localhost:3000
 ```
 
-## 🔐 Access Permissions
+## Access Permission Matrix
 
-The application uses permission-based board sharing.
-
-| Operation | Owner | EDIT Collaborator | VIEW Collaborator |
-|---|---|---|---|
+| Action | Board Owner | EDIT Collaborator | VIEW Collaborator |
+|---|:---:|:---:|:---:|
 | View board | Yes | Yes | Yes |
-| Draw on canvas | Yes | Yes | No |
-| Edit text | Yes | Yes | No |
-| Move and resize text | Yes | Yes | No |
-| Clear canvas | Yes | Yes | No |
 | Receive real-time updates | Yes | Yes | Yes |
-| Manage sharing links | Yes | No | No |
+| Draw on canvas | Yes | Yes | No |
+| Create or edit text | Yes | Yes | No |
+| Move or resize text | Yes | Yes | No |
+| Clear canvas | Yes | Yes | No |
 | Rename board | Yes | No | No |
 | Delete board | Yes | No | No |
+| Manage sharing links | Yes | No | No |
 
-All protected operations are validated on the backend rather than relying exclusively on frontend restrictions.
+Permission-sensitive operations are checked on the backend; frontend control visibility is not the only access-control mechanism.
 
-## 🏗️ Architecture Overview
+## Project Structure
 
-The application follows a client-server architecture.
+The repository is organized into separate frontend and backend applications. The frontend contains the HTML pages, stylesheets, and JavaScript modules for authentication, board management, canvas tools, and real-time communication. The backend contains the Express server, API routes, controllers, middleware, database access, and migrations.
 
-**Frontend**
-- Handles user interactions and canvas rendering.
-- Communicates with backend REST APIs.
-- Establishes authenticated Socket.IO connections.
-- Updates the interface based on board permissions.
+```text
+realtime-collaborative-whiteboard/
+├── frontend/
+│   ├── index.html
+│   ├── board-management.html
+│   ├── whiteboard.html
+│   ├── css/
+│   └── js/
+├── backend/
+│   ├── controllers/
+│   ├── routes/
+│   ├── middleware/
+│   ├── database/
+│   │   └── migrations/
+│   ├── server.js
+│   ├── db.js
+│   └── package.json
+├── .gitignore
+└── README.md
+```
 
-**Backend**
-- Handles authentication and authorization.
-- Provides REST APIs for board management.
-- Validates board ownership and sharing permissions.
-- Manages real-time collaboration through Socket.IO.
-- Persists board and drawing data.
+This is a high-level overview; additional modules and files are present in the repository.
 
-**Database**
-- PostgreSQL stores user accounts, board information, authentication-related records, and sharing-link records.
-- JSONB stores drawing operations for persistent canvas restoration.
-- Refresh tokens and sharing tokens are stored securely as hashes.
+## Key Engineering Challenges
 
-## 🗺️ Project Development
+### 1. Real-Time Synchronization and Persistence
 
-- [x] Phase 1 — Interactive canvas-based drawing application.
-- [x] Phase 2 — Node.js and Express.js backend.
-- [x] Phase 3 — PostgreSQL integration and board CRUD APIs.
-- [x] Phase 4 — Real-time collaboration using Socket.IO.
-- [x] Phase 5 — User registration and login.
-- [x] Phase 6 — Password hashing and input validation.
-- [x] Phase 7 — JWT access-token authentication.
-- [x] Phase 8 — Refresh-token rotation and revocation.
-- [x] Phase 9 — Protected board access and ownership management.
-- [x] Phase 10 — VIEW and EDIT collaborator permissions.
-- [x] Phase 11 — Authenticated Socket.IO communication and authorization.
-- [x] Phase 12 — Secure board-sharing links and revocation.
-- [x] Phase 13 — Persistent drawing history.
-- [x] Phase 14 — Real-time text editing, dragging, resizing, and deletion.
-- [x] Phase 15 — Final integration and collaboration testing.
+Drawing operations need to appear immediately for collaborators and remain available after a board is reopened. Socket.IO handles live synchronization, while PostgreSQL stores the board's drawing data for persistence.
 
-## 📌 Project Status
+### 2. Permission-Based Sharing and Access Revocation
 
-The core application functionality has been implemented, including:
+Sharing a board requires more than generating a URL. The backend must distinguish between viewers and editors, validate each protected operation, and handle access changes while a collaborator is connected. The application supports VIEW and EDIT permissions and real-time revocation of active sharing access.
 
-- Interactive canvas-based drawing.
-- Backend REST APIs and PostgreSQL integration.
-- Persistent board and drawing data.
-- Real-time multi-user collaboration.
-- User authentication and refresh-token management.
-- Protected board access and permission-based sharing.
-- Secure sharing-link generation and revocation.
-- Real-time synchronization of drawing and text operations.
+## What I Learned
 
-The project demonstrates the integration of frontend development, backend engineering, relational database management, authentication, authorization, and real-time communication in a single full-stack application.
+Building this project provided practical experience with:
+- Structuring a full-stack application.
+- Designing and integrating REST APIs.
+- Working with PostgreSQL and persistent JSONB data.
+- Implementing authentication and refresh-token flows.
+- Applying backend authorization and permission checks.
+- Building real-time features with Socket.IO.
+- Debugging frontend, backend, and database integration issues.
+- Deploying a full-stack application.
 
-## 👩‍💻 Author
+## Author
 
 **Janvi Desai**
 
@@ -291,4 +241,4 @@ The project demonstrates the integration of frontend development, backend engine
 
 ---
 
-*Built to explore and implement full-stack development, secure authentication, database design, and real-time collaborative web applications.*
+If you try the application, use a laptop or desktop for the intended drawing experience.
